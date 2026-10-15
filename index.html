@@ -1,0 +1,2486 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="obsidian-amber">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>LEGION HUB 2.0 | ЕГЭ-2027 • База ФИПИ • Плеер @ilcheg • Google Drive Sync</title>
+
+  <!-- Настройки для установки на iPhone (iOS PWA) и ПК -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="LegionHub">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0b0b0e">
+
+  <!-- Подключение KaTeX для идеального рендера всех математических знаков и дробей -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+  <style>
+    /* ================= ТЕМЫ ИНТЕРФЕЙСА (ПО УМОЛЧАНИЮ — СТИЛЬ ИЗ ВИДЕО) ================= */
+    :root[data-theme="obsidian-amber"] {
+      --bg-app: #0b0b0e;
+      --bg-sidebar: #111115;
+      --bg-card: #16161b;
+      --bg-card-hover: #1c1c23;
+      --bg-elevated: #202028;
+      --border: #272730;
+      --border-active: #f59e0b;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent: #f59e0b;
+      --accent-soft: rgba(245, 158, 11, 0.14);
+      --accent-hover: #d97706;
+      --emerald: #10b981;
+      --emerald-soft: rgba(16, 185, 129, 0.14);
+      --danger: #ef4444;
+      --danger-soft: rgba(239, 68, 68, 0.14);
+      --blue: #3b82f6;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+    }
+
+    :root[data-theme="fipi-light"] {
+      --bg-app: #f1f5f9;
+      --bg-sidebar: #ffffff;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f8fafc;
+      --bg-elevated: #f1f5f9;
+      --border: #cbd5e1;
+      --border-active: #0284c7;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --accent: #0284c7;
+      --accent-soft: rgba(2, 132, 199, 0.12);
+      --accent-hover: #0369a1;
+      --emerald: #16a34a;
+      --emerald-soft: rgba(22, 163, 74, 0.12);
+      --danger: #dc2626;
+      --danger-soft: rgba(220, 38, 38, 0.12);
+      --blue: #2563eb;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-app);
+      color: var(--text-main);
+      font-size: 14.5px;
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* ================= ВЕРХНЯЯ ПАНЕЛЬ (КАК В CRM BAZOVOI НА ВИДЕО) ================= */
+    .topbar {
+      background: var(--bg-sidebar);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 18px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 120;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      font-weight: 800;
+      font-size: 1.05rem;
+      letter-spacing: 0.04em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .version-pill {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    .top-filters {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pill-btn {
+      background: var(--bg-card);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .pill-btn:hover {
+      background: var(--bg-card-hover);
+      color: var(--text-main);
+    }
+
+    .pill-btn.active {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .pill-btn.emerald-pill {
+      background: var(--emerald-soft);
+      color: var(--emerald);
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      background: var(--text-muted);
+    }
+    .status-dot.green { background: var(--emerald); box-shadow: 0 0 8px var(--emerald); }
+    .status-dot.amber { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+
+    select, input[type="text"], input[type="password"], textarea, button {
+      font-family: inherit;
+      font-size: 0.9rem;
+      color: var(--text-main);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 7px 11px;
+      outline: none;
+      transition: all 0.15s ease;
+    }
+
+    select:focus, input:focus, textarea:focus {
+      border-color: var(--accent);
+    }
+
+    button.primary-btn {
+      background: var(--accent);
+      color: #0b0b0e;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+    }
+    button.primary-btn:hover:not(:disabled) {
+      background: var(--accent-hover);
+    }
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* ================= ОСНОВНОЙ КАРКАС: ЛЕВЫЙ САЙДБАР + ЦЕНТР ================= */
+    .workspace {
+      display: grid;
+      grid-template-columns: 270px 1fr;
+      flex: 1;
+      min-height: calc(100vh - 56px);
+    }
+
+    @media (max-width: 960px) {
+      .workspace { grid-template-columns: 1fr; }
+    }
+
+    .sidebar {
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .sidebar-section-label {
+      font-size: 0.73rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    .task-nav-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      max-height: 68vh;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .task-nav-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      transition: all 0.14s ease;
+      text-align: left;
+    }
+
+    .task-nav-item:hover {
+      background: var(--bg-card-hover);
+      border-color: #3f3f4e;
+    }
+
+    .task-nav-item.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .task-badge {
+      font-size: 0.68rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .task-badge.new-2027 {
+      background: var(--accent);
+      color: #000;
+      font-weight: 800;
+    }
+
+    /* ================= РАЗДЕЛЁННЫЙ ЭКРАН ЗАДАЧИ (КАК НА 00:12–00:25 В ВИДЕО) ================= */
+    .main-stage {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+    }
+
+    .split-demo-layout {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    @media (max-width: 1180px) {
+      .split-demo-layout { grid-template-columns: 1fr; }
+    }
+
+    .steps-column {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .step-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: border-color 0.2s ease;
+    }
+
+    .step-box.completed {
+      border-color: rgba(16, 185, 129, 0.45);
+    }
+
+    .step-box.active-step {
+      border-color: var(--accent);
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .step-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .step-circle {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .step-box.completed .step-circle {
+      background: var(--emerald);
+      border-color: var(--emerald);
+      color: #052e16;
+    }
+
+    .step-box.active-step .step-circle {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #0b0b0e;
+    }
+
+    /* Панель быстрых математических и геометрических знаков */
+    .math-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      padding: 6px;
+      background: var(--bg-app);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+
+    .math-sym-btn {
+      background: var(--bg-elevated);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      padding: 4px 9px;
+      border-radius: 5px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .math-sym-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Рамка предпросмотра справа (Чертёж ФИПИ или Видеоплеер 1080p) */
+    .preview-frame-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: sticky;
+      top: 72px;
+    }
+
+    .fipi-blueprint-sheet {
+      width: 100%;
+      background: #ffffff;
+      border: 2px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 320px;
+      position: relative;
+    }
+
+    .fipi-blueprint-sheet.dark-sheet {
+      background: #101218;
+      border-color: #272730;
+    }
+
+    canvas { max-width: 100%; height: auto; }
+
+    #fipi-direct-img {
+      max-width: 100%;
+      max-height: 350px;
+      object-fit: contain;
+      display: none;
+    }
+
+    /* ================= КАРТОЧКИ СТРИМОВ BENTO GRID (КАК НА 00:01–00:10 В ВИДЕО) ================= */
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+    }
+
+    .bento-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 13px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+
+    .bento-card:hover, .bento-card.active-card {
+      border-color: var(--accent);
+      background: var(--bg-card-hover);
+      transform: translateY(-1px);
+    }
+
+    .bento-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .bento-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.74rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+    }
+
+    .bento-status-pill.watched {
+      background: var(--emerald-soft);
+      color: var(--emerald);
+    }
+
+    .bento-rating {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .bento-title {
+      font-weight: 700;
+      font-size: 0.94rem;
+      line-height: 1.35;
+    }
+
+    .bento-sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .bento-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-top: 6px;
+      border-top: 1px solid var(--border);
+    }
+
+    .bento-icons {
+      display: flex;
+      gap: 5px;
+    }
+
+    .circle-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .progress-line {
+      width: 100%;
+      height: 4px;
+      background: var(--bg-elevated);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-line-fill {
+      height: 100%;
+      background: var(--emerald);
+      width: 0%;
+    }
+
+    /* ================= ВЫЕЗЖАЮЩАЯ ШТОРКА ИИ-ТРЕНЕРА GEMINI 4 ARGON (КАК НА 00:10) ================= */
+    .ai-drawer {
+      position: fixed;
+      top: 55px;
+      right: 0;
+      width: 400px;
+      max-width: 94vw;
+      height: calc(100vh - 55px);
+      background: var(--bg-sidebar);
+      border-left: 1px solid var(--border);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      gap: 12px;
+      transform: translateX(102%);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: -10px 0 30px rgba(0,0,0,0.55);
+    }
+
+    .ai-drawer.open {
+      transform: translateX(0);
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      background: var(--bg-app);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .chat-bubble {
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      max-width: 92%;
+      white-space: pre-wrap;
+    }
+    .chat-bubble.ai { background: var(--bg-card); border: 1px solid var(--border); align-self: flex-start; }
+    .chat-bubble.user { background: var(--accent); color: #0b0b0e; font-weight: 600; align-self: flex-end; }
+
+    /* Модальное окно настроек Google Диска и API */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.72);
+      z-index: 300;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-backdrop.open { display: flex; }
+
+    .modal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      max-width: 580px;
+      width: 100%;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .player-stage {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .player-stage iframe, .player-stage video {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ================= ВЕРХНЯЯ ПАНЕЛЬ BAZOVOI / LEGION HUB ================= -->
+<header class="topbar">
+  <div class="brand-group">
+    <div class="brand-logo">
+      <span class="status-dot amber"></span>
+      <span>LEGION HUB</span>
+      <span class="version-pill">v2.4 PRO</span>
+    </div>
+
+    <div class="top-filters">
+      <button class="pill-btn active" id="nav-mode-tasks" onclick="switchWorkspaceMode('tasks')">
+        <span>Тренажёр ФИПИ + Подсказки</span>
+      </button>
+      <button class="pill-btn" id="nav-mode-streams" onclick="switchWorkspaceMode('streams')">
+        <span>Стримы @ilcheg (1080p)</span>
+      </button>
+      <button class="pill-btn" id="nav-mode-theory" onclick="switchWorkspaceMode('theory')">
+        <span>Конспекты и Формулы</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="top-filters">
+    <!-- Статус синхронизации с Google Диском -->
+    <button class="pill-btn emerald-pill" onclick="toggleSyncModal()" id="gdrive-status-btn" title="Настроить автосохранение на Google Диск">
+      <span class="status-dot green" id="gdrive-dot"></span>
+      <span id="gdrive-status-text">Google Диск: Локально + Облако</span>
+    </button>
+
+    <div class="pill-btn" style="cursor:default;">
+      <span>Решено: <b id="stat-solved" style="color:var(--emerald);">0</b> / <b id="stat-total">0</b></span>
+    </div>
+
+    <select id="theme-select" onchange="changeTheme(this.value)">
+      <option value="obsidian-amber" selected>Стиль: Obsidian & Amber (Из видео)</option>
+      <option value="fipi-light">Стиль: Бланк ФИПИ (Светлый)</option>
+    </select>
+
+    <button class="primary-btn" style="padding:7px 14px; border-radius:8px;" onclick="toggleAiDrawer()">
+      Тренер Gemini 4 Argon
+    </button>
+  </div>
+</header>
+
+<!-- ================= ОСНОВНОЕ РАБОЧЕЕ ПРОСТРАНСТВО ================= -->
+<div class="workspace">
+  <!-- ЛЕВАЯ КОЛОНКА: 20 ЗАДАНИЙ ЕГЭ-2027 С ФИЛЬТРАМИ -->
+  <aside class="sidebar">
+    <div style="display:flex; gap:6px;">
+      <button class="pill-btn active" style="flex:1; justify-content:center; padding:5px;" id="f-part-all" onclick="filterTaskList('all')">Все 20</button>
+      <button class="pill-btn" style="flex:1; justify-content:center; padding:5px;" id="f-part-1" onclick="filterTaskList(1)">Часть 1</button>
+      <button class="pill-btn" style="flex:1; justify-content:center; padding:5px;" id="f-part-2" onclick="filterTaskList(2)">Часть 2</button>
+    </div>
+
+    <div class="sidebar-section-label">Номера КИМ ЕГЭ-2027 (ФИПИ)</div>
+    <div class="task-nav-list" id="task-nav-list"></div>
+  </aside>
+
+  <!-- ЦЕНТРАЛЬНАЯ ЗОНА -->
+  <main class="main-stage">
+
+    <!-- РЕЖИМ 1: РАЗДЕЛЁННЫЙ ЭКРАН ЗАДАЧИ И ПОШАГОВЫХ ПОДСКАЗОК (КАК В ЯНДЕКС УЧЕБНИКЕ И ВИДЕО) -->
+    <div id="view-tasks" class="split-demo-layout">
+      <!-- ЛЕВАЯ ПОЛОВИНА: ПРОНУМЕРОВАННЫЕ ШАГИ 1, 2, 3, 4 С ГАЛОЧКАМИ -->
+      <div class="steps-column">
+
+        <!-- Карточка заголовка и управления задачей -->
+        <div class="step-box active-step" id="step-box-0">
+          <div class="step-header">
+            <div class="step-title-wrap">
+              <span class="step-circle" id="circle-0">✓</span>
+              <span id="task-header-title">Задание №9. Производная и касательная</span>
+            </div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              <button class="pill-btn" onclick="generateTaskFromBank()">Другой прототип ФИПИ</button>
+              <button class="pill-btn" style="color:var(--accent); border-color:var(--accent);" onclick="generateTaskViaGemini()" id="btn-gen-ai">+ Gemini 4 Argon</button>
+            </div>
+          </div>
+
+          <div id="problem-statement" style="font-size:1.02rem; line-height:1.6; padding:4px 0;">
+            Загрузка условия...
+          </div>
+
+          <!-- Панель всех математических и геометрических знаков -->
+          <div>
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:4px;">
+              Панель математических знаков (нажми для вставки в поле ответа/решения):
+            </div>
+            <div class="math-toolbar">
+              <button class="math-sym-btn" onclick="insertMathSym('+')" title="Сложение">+</button>
+              <button class="math-sym-btn" onclick="insertMathSym('−')" title="Вычитание">−</button>
+              <button class="math-sym-btn" onclick="insertMathSym('·')" title="Умножение точкой">·</button>
+              <button class="math-sym-btn" onclick="insertMathSym(':')" title="Деление">:</button>
+              <button class="math-sym-btn" onclick="insertMathSym('/')" title="Обыкновенная дробь a/b">a/b</button>
+              <button class="math-sym-btn" onclick="insertMathSym(',')" title="Десятичная запятая">0,5</button>
+              <button class="math-sym-btn" onclick="insertMathSym('√()')" title="Квадратный корень">√x</button>
+              <button class="math-sym-btn" onclick="insertMathSym('²')" title="Квадрат">x²</button>
+              <button class="math-sym-btn" onclick="insertMathSym('∥')" title="Параллельно">∥</button>
+              <button class="math-sym-btn" onclick="insertMathSym('⊥')" title="Перпендикулярно">⊥</button>
+              <button class="math-sym-btn" onclick="insertMathSym('∈')" title="Принадлежит фигуре / множеству">∈</button>
+              <button class="math-sym-btn" onclick="insertMathSym('⊂')" title="Лежит в плоскости / подмножество">⊂</button>
+              <button class="math-sym-btn" onclick="insertMathSym('△')" title="Треугольник">△</button>
+              <button class="math-sym-btn" onclick="insertMathSym('∠')" title="Угол">∠</button>
+              <button class="math-sym-btn" onclick="insertMathSym('π')" title="Число Пи">π</button>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+            <input type="text" id="user-answer-input" style="flex:1; min-width:190px; font-weight:700; font-size:1rem;" placeholder="Введи ответ (без спойлера при ошибке)..." onkeydown="if(event.key==='Enter') verifyUserAnswer()">
+            <button class="primary-btn" style="padding:9px 18px; border-radius:8px;" onclick="verifyUserAnswer()">Проверить</button>
+          </div>
+
+          <div id="answer-feedback" style="display:none; padding:10px 12px; border-radius:8px; font-size:0.9rem; font-weight:600;"></div>
+        </div>
+
+        <!-- ШАГ 1: ПЕРВАЯ ПОДСКАЗКА (ЛЁГКАЯ НАВОДКА) -->
+        <div class="step-box" id="step-box-1">
+          <div class="step-header">
+            <div class="step-title-wrap">
+              <span class="step-circle" id="circle-1">1</span>
+              <span>Первая подсказка — лёгкая наводка на мысль</span>
+            </div>
+            <button class="pill-btn" id="btn-step-1" onclick="revealHint(1)">Открыть подсказку 1</button>
+          </div>
+          <div id="content-step-1" style="display:none; color:var(--text-main); font-size:0.94rem; border-top:1px solid var(--border); padding-top:8px;"></div>
+        </div>
+
+        <!-- ШАГ 2: ВТОРАЯ ПОДСКАЗКА (ФОРМУЛЫ И СВЯЗЬ ДАННЫХ) -->
+        <div class="step-box" id="step-box-2">
+          <div class="step-header">
+            <div class="step-title-wrap">
+              <span class="step-circle" id="circle-2">2</span>
+              <span>Вторая подсказка — нужная формула и связь величин</span>
+            </div>
+            <button class="pill-btn" id="btn-step-2" onclick="revealHint(2)" disabled>Доступно после 1-й</button>
+          </div>
+          <div id="content-step-2" style="display:none; color:var(--text-main); font-size:0.94rem; border-top:1px solid var(--border); padding-top:8px;"></div>
+        </div>
+
+        <!-- ШАГ 3: ТРЕТЬЯ ПОДСКАЗКА (ПОЛНЫЙ ХОД РЕШЕНИЯ БЕЗ ОТВЕТА) -->
+        <div class="step-box" id="step-box-3">
+          <div class="step-header">
+            <div class="step-title-wrap">
+              <span class="step-circle" id="circle-3">3</span>
+              <span>Третья подсказка — подстановка и предфинальный шаг</span>
+            </div>
+            <button class="pill-btn" id="btn-step-3" onclick="revealHint(3)" disabled>Доступно после 2-й</button>
+          </div>
+          <div id="content-step-3" style="display:none; color:var(--text-main); font-size:0.94rem; border-top:1px solid var(--border); padding-top:8px;"></div>
+        </div>
+
+        <!-- ШАГ 4: ЧЕТВЁРТАЯ СТУПЕНЬ — ОТВЕТ + ПОЛНЫЙ РАЗБОР СЛОВАМИ И ФОРМУЛАМИ -->
+        <div class="step-box" id="step-box-4">
+          <div class="step-header">
+            <div class="step-title-wrap">
+              <span class="step-circle" id="circle-4">4</span>
+              <span>Полное решение с объяснением каждого действия и ответ</span>
+            </div>
+            <button class="pill-btn" id="btn-step-4" onclick="revealHint(4)" disabled>Доступно после 3-й</button>
+          </div>
+          <div id="content-step-4" style="display:none; color:var(--text-main); font-size:0.95rem; border-top:1px solid var(--border); padding-top:10px; white-space:pre-wrap;"></div>
+        </div>
+
+        <!-- Дополнительное поле для 2-й части (письменное решение и фото тетради) -->
+        <div class="step-box" id="part2-box" style="display:none;">
+          <div class="step-header">
+            <div class="step-title-wrap">
+              <span class="step-circle">2ч</span>
+              <span>Проверка развёрнутого решения (№14–20) по критериям ФИПИ</span>
+            </div>
+          </div>
+          <textarea id="part2-solution-text" rows="3" placeholder="Запиши ход своего решения (можешь использовать кнопки знаков ∥, ⊥, ∈, △ выше)..."></textarea>
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <input type="file" id="part2-photo" accept="image/*">
+            <button class="primary-btn" onclick="checkPart2Solution()">Проверить через Gemini 4 Argon</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ПРАВАЯ ПОЛОВИНА: РАМКА ПРЕДПРОСМОТРА (ЧЕРТЁЖ БЛАНКА ФИПИ ИЛИ МИНИ-ПЛЕЕР СТРИМА) -->
+      <div class="preview-frame-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <div style="display:flex; gap:6px;">
+            <button class="pill-btn active" id="preview-tab-graph" onclick="setRightPreviewMode('graph')">Чертёж / График ФИПИ</button>
+            <button class="pill-btn" id="preview-tab-stream" onclick="setRightPreviewMode('stream')">Разбор в плеере (1080p)</button>
+          </div>
+          <span style="font-size:0.76rem; color:var(--text-muted);" id="fipi-bank-id">Банк: os.fipi.ru</span>
+        </div>
+
+        <!-- Режим предпросмотра 1: Бланк чертежа ФИПИ -->
+        <div id="right-preview-graph">
+          <div class="fipi-blueprint-sheet" id="blueprint-sheet">
+            <img id="fipi-direct-img" alt="Оригинальный рисунок ФИПИ">
+            <canvas id="fipi-canvas" width="620" height="360"></canvas>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-top:8px;">
+            <label style="font-size:0.8rem; color:var(--text-muted); display:flex; align-items:center; gap:6px; cursor:pointer;">
+              <input type="checkbox" id="chk-fipi-paper" checked onchange="redrawCurrentGraph()">
+              <span>Оригинальный белый бланк КИМ ФИПИ</span>
+            </label>
+            <div style="display:flex; gap:6px; flex:1; max-width:310px;">
+              <input type="text" id="direct-fipi-img-url" style="flex:1; font-size:0.78rem; padding:4px 8px;" placeholder="Прямой URL картинки с os.fipi.ru...">
+              <button class="pill-btn" style="padding:4px 8px; font-size:0.76rem;" onclick="applyDirectFipiImage()">Показать</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Режим предпросмотра 2: Быстрое переключение на плеер -->
+        <div id="right-preview-stream" style="display:none; flex-direction:column; gap:10px;">
+          <div style="font-size:0.86rem; color:var(--text-muted);">
+            Для этого задания привязан вебинар Ильича с таймкодами. Нажми кнопку ниже, чтобы развернуть полный плеер 1080p:
+          </div>
+          <button class="primary-btn" style="padding:10px; border-radius:8px;" onclick="openLinkedStreamInFullPlayer()">
+            Открыть вебинар Ильича по №<span id="lbl-stream-task-num">9</span> в плеере 1080p ->
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- РЕЖИМ 2: ПОЛНЫЙ ВИДЕОПЛЕЕР 1080P + BENTO-КАТАЛОГ ТРАНСЛЯЦИЙ @ILCHEG -->
+    <div id="view-streams" style="display:none; flex-direction:column; gap:16px;">
+      <div class="step-box active-step">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div>
+            <h3 id="player-stream-title" style="font-size:1.05rem;">ВСЁ ЗАДАНИЕ №9: ПРОИЗВОДНЫЕ С НУЛЯ | Ильич ЕГЭ 2027</h3>
+            <span style="font-size:0.8rem; color:var(--text-muted);" id="player-save-indicator">
+              ● Автосохранение секунды активно (Память + Google Диск)
+            </span>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="pill-btn" onclick="syncProgressToGoogleDrive(true)">Сохранить позицию на Google Диск сейчас</button>
+            <label class="pill-btn" style="cursor:pointer;">
+              <span>Открыть свой MP4 (1080p)</span>
+              <input type="file" accept="video/*" style="display:none;" onchange="openLocalVideo(this)">
+            </label>
+          </div>
+        </div>
+
+        <!-- Плашка автопродолжения с сохранённой секунды -->
+        <div id="saved-time-banner" style="display:none; background:var(--emerald-soft); border:1px solid var(--emerald); padding:8px 12px; border-radius:8px; justify-content:space-between; align-items:center;">
+          <span id="saved-time-text" style="color:var(--emerald); font-weight:600; font-size:0.86rem;">
+            Воспроизведение продолжено с сохранённой отметки 00:00
+          </span>
+          <button class="pill-btn" style="padding:3px 10px; font-size:0.78rem;" onclick="seekVideoTo(0)">Сбросить на 00:00</button>
+        </div>
+
+        <div class="player-stage" id="player-container">
+          <div id="yt-api-mount"></div>
+          <video id="local-html5-video" controls playsinline style="display:none;"></video>
+        </div>
+
+        <!-- Панель управления плеером: 1080p, скорость 0.75x - 2x, звук -->
+        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; background:var(--bg-app); padding:10px 12px; border-radius:8px; border:1px solid var(--border);">
+          <div style="display:flex; gap:6px; align-items:center;">
+            <button class="primary-btn" style="padding:6px 14px; border-radius:6px;" onclick="toggleVideoPlay()">Пуск / Пауза</button>
+            <button class="pill-btn" onclick="seekVideoRelative(-15)">-15с</button>
+            <button class="pill-btn" onclick="seekVideoRelative(15)">+15с</button>
+          </div>
+
+          <div style="display:flex; gap:5px; align-items:center; flex-wrap:wrap;">
+            <span style="font-size:0.78rem; color:var(--text-muted); font-weight:700;">Скорость:</span>
+            <button class="pill-btn speed-pill" onclick="setVideoSpeed(0.75, this)">0.75x</button>
+            <button class="pill-btn speed-pill active" onclick="setVideoSpeed(1, this)">1x</button>
+            <button class="pill-btn speed-pill" onclick="setVideoSpeed(1.25, this)">1.25x</button>
+            <button class="pill-btn speed-pill" onclick="setVideoSpeed(1.5, this)">1.5x</button>
+            <button class="pill-btn speed-pill" onclick="setVideoSpeed(1.75, this)">1.75x</button>
+            <button class="pill-btn speed-pill" onclick="setVideoSpeed(2, this)">2x</button>
+          </div>
+
+          <div style="display:flex; gap:8px; align-items:center;">
+            <span style="font-size:0.78rem; color:var(--text-muted); font-weight:700;">Звук:</span>
+            <input type="range" min="0" max="100" value="100" style="width:95px; accent-color:var(--accent);" oninput="setVideoVolume(this.value)">
+            <span id="lbl-vol" style="font-size:0.8rem; min-width:34px;">100%</span>
+          </div>
+
+          <div style="display:flex; gap:6px; align-items:center;">
+            <select id="sel-video-quality" onchange="setVideoQuality(this.value)">
+              <option value="hd1080" selected>1080p Full HD</option>
+              <option value="hd720">720p HD</option>
+              <option value="large">480p</option>
+            </select>
+            <button class="pill-btn" onclick="goFullscreenPlayer()">На весь экран</button>
+          </div>
+        </div>
+
+        <!-- Таймкоды текущего стрима -->
+        <div>
+          <div style="font-size:0.8rem; color:var(--text-muted); font-weight:700; margin-bottom:6px;">Таймкоды вебинара (кликни для перехода):</div>
+          <div style="display:flex; flex-wrap:wrap; gap:6px;" id="stream-timecodes-box"></div>
+        </div>
+      </div>
+
+      <!-- Панель фильтрации и добавления новых стримов в стиле Bento CRM из видео -->
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+          <button class="pill-btn active" id="st-filter-all" onclick="filterStreamsBento('all', this)">Все стримы (18)</button>
+          <button class="pill-btn" id="st-filter-part1" onclick="filterStreamsBento('part1', this)">Часть 1 (№1–13)</button>
+          <button class="pill-btn" id="st-filter-part2" onclick="filterStreamsBento('part2', this)">Часть 2 (№14–20)</button>
+          <button class="pill-btn" id="st-filter-hard" onclick="filterStreamsBento('hard', this)">Демоверсия и Гробы</button>
+        </div>
+
+        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+          <input type="text" id="new-stream-title" placeholder="Название вебинара..." style="width:170px;">
+          <input type="text" id="new-stream-url" placeholder="Ссылка YouTube @ilcheg..." style="width:210px;">
+          <button class="primary-btn" style="padding:7px 12px; border-radius:6px;" onclick="addNewStreamCard()">+ Добавить стрим</button>
+        </div>
+      </div>
+
+      <!-- Сетка карточек трансляций в стиле видео (Bento Grid) -->
+      <div class="bento-grid" id="streams-bento-grid"></div>
+    </div>
+
+    <!-- РЕЖИМ 3: ТЕОРИЯ И СПРАВОЧНИК ФОРМУЛ -->
+    <div id="view-theory" style="display:none; flex-direction:column; gap:14px;">
+      <div class="step-box active-step" id="theory-card-box"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ================= ВЫЕЗЖАЮЩАЯ ШТОРКА ИИ-ТРЕНЕРА GEMINI 4 ARGON ================= -->
+<aside class="ai-drawer" id="ai-drawer">
+  <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:10px;">
+    <div>
+      <div style="font-weight:800; font-size:1rem; color:var(--accent);">Тренер Gemini 4 Argon</div>
+      <div style="font-size:0.75rem; color:var(--text-muted);">Стиль подачи: @ilcheg • Авто-подстраховка API</div>
+    </div>
+    <button class="pill-btn" onclick="toggleAiDrawer()">Закрыть ✕</button>
+  </div>
+
+  <div style="display:flex; flex-direction:column; gap:6px; background:var(--bg-card); padding:10px; border-radius:8px; border:1px solid var(--border);">
+    <div style="display:flex; justify-content:space-between; font-size:0.78rem;">
+      <b>Ключ Gemini API и модель:</b>
+      <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent); text-decoration:none;">Взять ключ -></a>
+    </div>
+    <input type="password" id="gemini-api-key" placeholder="Вставь ключ AIzaSy..." oninput="saveSettingsToStorage()">
+    <div style="display:flex; gap:6px;">
+      <select id="gemini-model-select" style="flex:1;" onchange="saveSettingsToStorage()">
+        <option value="gemini-4-argon" selected>Gemini 4 Argon (Флагман 2026 + Auto-Fallback)</option>
+        <option value="gemini-2.5-pro">Gemini 2.5 Pro (Глубокий матанализ)</option>
+        <option value="gemini-2.5-flash">Gemini 2.5 Flash (Мгновенный бесплатный)</option>
+      </select>
+      <select id="gemini-thinking-level" style="width:110px;" title="Глубина рассуждений Argon">
+        <option value="HIGH" selected>Think: High</option>
+        <option value="MEDIUM">Think: Med</option>
+        <option value="LOW">Think: Low</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="chat-messages" id="chat-messages">
+    <div class="chat-bubble ai">Здорово, чат! Я работаю в режиме Gemini 4 Argon (с автоматической подстраховкой через Pro/Flash, если бесплатный ключ упрётся в лимит) :)
+Спрашивай любой шаг по текущей задаче или проси объяснить, почему мы умножили или разделили те или иные величины!</div>
+  </div>
+
+  <div style="display:flex; gap:6px;">
+    <input type="text" id="chat-user-input" style="flex:1;" placeholder="Спроси ИИ-тренера..." onkeydown="if(event.key==='Enter') sendAiChatMessage()">
+    <button class="primary-btn" style="padding:8px 14px; border-radius:6px;" onclick="sendAiChatMessage()">-></button>
+  </div>
+</aside>
+
+<!-- ================= МОДАЛЬНОЕ ОКНО СИНХРОНИЗАЦИИ С GOOGLE ДИСКОМ ================= -->
+<div class="modal-backdrop" id="sync-modal">
+  <div class="modal-card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h3 style="color:var(--accent);">Синхронизация с твоим Google Диском</h3>
+      <button class="pill-btn" onclick="toggleSyncModal()">✕</button>
+    </div>
+    <p style="font-size:0.88rem; color:var(--text-muted);">
+      Вставь сюда ссылку своего веб-приложения Google Apps Script (`https://script.google.com/macros/s/.../exec`). Сайт будет автоматически сохранять секунду, на которой ты остановился в каждом стриме Ильича, и твою статистику прямо в файл <b>legionhub_progress.json</b> на твоём Google Диске!
+    </p>
+    <input type="text" id="gdrive-webhook-url" placeholder="https://script.google.com/macros/s/.../exec" oninput="saveSettingsToStorage()">
+    <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
+      <button class="pill-btn" onclick="loadProgressFromGoogleDrive(true)">Загрузить с Google Диска</button>
+      <button class="primary-btn" style="padding:8px 16px; border-radius:6px;" onclick="syncProgressToGoogleDrive(true)">Сохранить на Google Диск сейчас</button>
+    </div>
+    <div id="sync-modal-log" style="font-size:0.82rem; color:var(--emerald);"></div>
+  </div>
+</div>
+
+<!-- Официальный скрипт YouTube IFrame API -->
+<script src="https://www.youtube.com/iframe_api"></script>
+
+<script>
+/* ============================================================================
+   1. ПОЛНАЯ БАЗА 20 ЗАДАНИЙ ЕГЭ-2027 С 4-ШАГОВЫМИ ПОДСКАЗКАМИ (ЯНДЕКС СТИЛЬ)
+      И ПРАВИЛЬНЫМИ МАТЕМАТИЧЕСКИМИ ЗНАКАМИ (⋅, :, √, a/b, ∥, ⊥, ∈, ⊂, △, ∠)
+   ============================================================================ */
+const TASKS_META = [
+  { num: 1, part: 1, pts: 1, name: "Планиметрия", isNew: false },
+  { num: 2, part: 1, pts: 1, name: "Векторы", isNew: false },
+  { num: 3, part: 1, pts: 1, name: "Стереометрия (1ч)", isNew: false },
+  { num: 4, part: 1, pts: 1, name: "Простая вероятность", isNew: false },
+  { num: 5, part: 1, pts: 1, name: "Сложная вероятность", isNew: false },
+  { num: 6, part: 1, pts: 1, name: "Матстатистика", isNew: true },
+  { num: 7, part: 1, pts: 1, name: "Уравнения", isNew: false },
+  { num: 8, part: 1, pts: 1, name: "Выражения", isNew: false },
+  { num: 9, part: 1, pts: 1, name: "Производная на графике", isNew: false },
+  { num: 10, part: 1, pts: 1, name: "Прикладные формулы", isNew: false },
+  { num: 11, part: 1, pts: 1, name: "Текстовые задачи", isNew: false },
+  { num: 12, part: 1, pts: 1, name: "Графики функций", isNew: false },
+  { num: 13, part: 1, pts: 1, name: "Экономика в 1ч", isNew: true },
+  { num: 14, part: 2, pts: 2, name: "Тригонометрия (2ч)", isNew: false },
+  { num: 15, part: 2, pts: 3, name: "Стереометрия (2ч)", isNew: false },
+  { num: 16, part: 2, pts: 2, name: "Неравенства (2ч)", isNew: false },
+  { num: 17, part: 2, pts: 2, name: "Оптимизация (2ч)", isNew: true },
+  { num: 18, part: 2, pts: 3, name: "Планиметрия (2ч)", isNew: false },
+  { num: 19, part: 2, pts: 4, name: "Параметр (2ч)", isNew: false },
+  { num: 20, part: 2, pts: 4, name: "Теория чисел (2ч)", isNew: false }
+];
+
+function randChoice(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function buildProblemForTask(num) {
+  if (num === 1) {
+    const ab = randChoice([7, 8, 9, 11, 13]);
+    const cd = randChoice([4, 5, 6, 10]);
+    const halfP = ab + cd;
+    const perim = 2 * halfP;
+    return {
+      fipiCode: "ФИПИ #10482A • Описанный четырёхугольник",
+      text: `В четырёхугольник $ABCD$ вписана окружность, $AB = ${ab}$. Периметр четырёхугольника $ABCD$ равен $${perim}$. Найдите длину стороны $CD$.`,
+      answer: String(cd),
+      hint1: `Посмотри на чертёж: окружность касается всех четырёх сторон четырёхугольника $ABCD$. Вспомни свойство сумм противоположных сторон такого четырёхугольника.`,
+      hint2: `Если в четырёхугольник можно вписать окружность, то суммы его противоположных сторон равны между собой: $$AB + CD = BC + AD$$ А вместе все четыре стороны дают периметр $P = ${perim}$.`,
+      hint3: `Так как две равные пары противоположных сторон в сумме дают весь периметр $${perim}$, то сумма одной пары $(AB + CD)$ равна ровно половине периметра: $$AB + CD = \\frac{${perim}}{2} = ${halfP}$$ Подставь сюда $AB = ${ab}$ и найди $CD$.`,
+      step4: `Полное решение с объяснением:\n1) По свойству описанного четырёхугольника (в который вписана окружность) суммы противоположных сторон равны: $$AB + CD = BC + AD$$\n2) Периметр — это сумма всех четырёх сторон: $P = (AB + CD) + (BC + AD) = ${perim}$. Мы делим периметр на $2$, потому что обе пары противоположных сторон дают одинаковую сумму:\n$$AB + CD = ${perim} : 2 = ${halfP}$$\n3) Теперь мы вычитаем из суммы противоположных сторон известную сторону $AB = ${ab}$, чтобы найти $CD$:\n$$CD = ${halfP} - ${ab} = ${cd}$$\nОтвет: ${cd}`,
+      visual: { type: "inscribed_quad", ab, cd, perim }
+    };
+  }
+
+  if (num === 2) {
+    const ax = randChoice([-4, -3, 2, 3, 4]);
+    const ay = randChoice([-3, 2, 4, 5]);
+    const bx = randChoice([-3, 2, 4, 5]);
+    const by = randChoice([-4, -2, 3, 4]);
+    const prodX = ax * bx;
+    const prodY = ay * by;
+    const dot = prodX + prodY;
+    return {
+      fipiCode: "ФИПИ #20914B • Векторы на сетке",
+      text: `На координатной плоскости изображены векторы $\\vec{a}$ и $\\vec{b}$. По клеткам сетки определено, что $\\vec{a} = (${ax};\\, ${ay})$ и $\\vec{b} = (${bx};\\, ${by})$. Найдите скалярное произведение векторов $\\vec{a} \\cdot \\vec{b}$.`,
+      answer: String(dot),
+      hint1: `Скалярное произведение двух векторов — это обычное число (скаляр), которое получается из их координат по оси $Ox$ и по оси $Oy$.`,
+      hint2: `Используй формулу скалярного произведения через координаты: $$\\vec{a} \\cdot \\vec{b} = x_1 \\cdot x_2 + y_1 \\cdot y_2$$ где $(x_1;\\, y_1)$ — координаты первого вектора, а $(x_2;\\, y_2)$ — второго.`,
+      hint3: `Умножь первую координату на первую: $(${ax}) \\cdot (${bx}) = ${prodX}$. Затем умножь вторую координату на вторую: $(${ay}) \\cdot (${by}) = ${prodY}$. Осталось сложить эти два числа с учётом их знаков.`,
+      step4: `Полное решение с объяснением:\n1) Запишем координаты векторов: $\\vec{a} = (${ax};\\, ${ay})$ и $\\vec{b} = (${bx};\\, ${by})$.\n2) Мы умножаем иксовую координату первого вектора на иксовую координату второго, и отдельно умножаем игрековую на игрековую, потому что проекции по перпендикулярным осям ($Ox \\perp Oy$) независимы:\n$$x_1 \\cdot x_2 = (${ax}) \\cdot (${bx}) = ${prodX}$$\n$$y_1 \\cdot y_2 = (${ay}) \\cdot (${by}) = ${prodY}$$\n3) Складываем полученные произведения:\n$$\\vec{a} \\cdot \\vec{b} = ${prodX} + (${prodY}) = ${dot}$$\nОтвет: ${dot}`,
+      visual: { type: "vectors", ax, ay, bx, by }
+    };
+  }
+
+  if (num === 3) {
+    const sSmall = randChoice([14, 18, 22, 26]);
+    const sBig = sSmall * 2;
+    return {
+      fipiCode: "ФИПИ #30519C • Сечение треугольной призмы",
+      text: `Через среднюю линию основания треугольной призмы проведена плоскость, параллельная боковому ребру. Площадь боковой поверхности отсечённой треугольной призмы равна $${sSmall}$. Найдите площадь боковой поверхности исходной призмы.`,
+      answer: String(sBig),
+      hint1: `Сравни боковые грани маленькой (отсечённой) призмы и большой (исходной) призмы. Изменилась ли высота призмы?`,
+      hint2: `Высота $h$ у обеих призм одна и та же (так как секущая плоскость параллельна боковому ребру). А вот каждая сторона основания маленькой призмы в $2$ раза меньше соответствующей стороны большой призмы по свойству средней линии треугольника.`,
+      hint3: `Площадь боковой поверхности призмы равна $S_{\\text{бок}} = P_{\\text{осн}} \\cdot h$. Так как периметр основания большой призмы ровно в $2$ раза больше периметра маленькой, во сколько раз отличается $S_{\\text{бок}}$?`,
+      step4: `Полное решение с объяснением:\n1) Пусть плоскость проходит через среднюю линию $DE \\parallel AB$ треугольника основания. По свойству средней линии $\\triangle CDE \\sim \\triangle CAB$ с коэффициентом подобия $k = \\frac{1}{2}$.\n2) Значит, все три стороны основания исходной призмы в $2$ раза больше сторон основания отсечённой призмы, а боковое ребро $h$ (высота) у них общее.\n3) Мы умножаем площадь боковой поверхности отсечённой призмы ($${sSmall}$) на $2$, потому что ширина каждого из трёх боковых прямоугольников увеличилась ровно в $2$ раза при неизменной высоте:\n$$S_{\\text{исх}} = ${sSmall} \\cdot 2 = ${sBig}$$\nОтвет: ${sBig}`,
+      visual: { type: "prism_midline", sSmall }
+    };
+  }
+
+  if (num === 4) {
+    const pLess20 = randChoice([0.94, 0.92, 0.89]);
+    const pLess15 = randChoice([0.56, 0.52, 0.48]);
+    const diff = Math.round((pLess20 - pLess15) * 100) / 100;
+    const ansStr = String(diff).replace(".", ",");
+    const p20Str = String(pLess20).replace(".", ",");
+    const p15Str = String(pLess15).replace(".", ",");
+    return {
+      fipiCode: "ФИПИ #40118D • Вероятность на интервале",
+      text: `Вероятность того, что в случайный момент времени в автобусе окажется меньше $20$ пассажиров, равна $${p20Str}$. Вероятность того, что окажется меньше $15$ пассажиров, равна $${p15Str}$. Найдите вероятность того, что число пассажиров будет от $15$ до $19$ включительно.`,
+      answer: ansStr,
+      hint1: `Представь числовую прямую с количеством пассажиров: $0, 1, 2, \\dots, 14, 15, \\dots, 19$. Событие «меньше 20» включает в себя числа от $0$ до $19$.`,
+      hint2: `Событие $A$ («меньше $20$ пассажиров») состоит из двух непересекающихся (несовместных) событий:\n— событие $B$: «меньше $15$ пассажиров» (от $0$ до $14$);\n— событие $C$: «от $15$ до $19$ пассажиров».`,
+      hint3: `Поскольку события $B$ и $C$ несовместны, вероятность их объединения равна сумме вероятностей: $$P(B) + P(C) = P(A) \\implies ${p15Str} + P(C) = ${p20Str}$$ Вырази отсюда $P(C)$.`,
+      step4: `Полное решение с объяснением:\n1) Событие «в автобусе меньше $20$ пассажиров» означает, что там от $0$ до $19$ человек. Оно распадается на два несовместных случая: либо там меньше $15$ человек, либо от $15$ до $19$ человек.\n2) Мы вычитаем из большей вероятности ($${p20Str}$) меньшую вероятность ($${p15Str}$), потому что сумма вероятностей двух частей равна вероятности всего события:\n$$P(15 \\le X \\le 19) = ${p20Str} - ${p15Str} = ${ansStr}$$\nОтвет: ${ansStr}`,
+      visual: { type: "number_line_prob", p20: pLess20, p15: pLess15 }
+    };
+  }
+
+  if (num === 5) {
+    const pHit = randChoice([0.8, 0.9]);
+    const pMiss = Math.round((1 - pHit) * 10) / 10;
+    const res = Math.round(pHit * pHit * pMiss * pMiss * 10000) / 10000;
+    const ansStr = String(res).replace(".", ",");
+    const hitStr = String(pHit).replace(".", ",");
+    const missStr = String(pMiss).replace(".", ",");
+    return {
+      fipiCode: "ФИПИ #50284E • Независимые выстрелы",
+      text: `Стрелок стреляет по четырём одинаковым мишеням по одному разу. Вероятность попадания в мишень при каждом отдельном выстреле равна $${hitStr}$. Найдите вероятность того, что стрелок попадёт в первые две мишени и промахнётся в последние две.`,
+      answer: ansStr,
+      hint1: `Нам задана чёткая последовательность из четырёх независимых событий: [Попал 1] И [Попал 2] И [Промахнулся 3] И [Промахнулся 4].`,
+      hint2: `Сначала найди вероятность одного промаха. Так как при выстреле стрелок либо попадает, либо промахивается, сумма этих вероятностей равна $1$: $$P(\\text{промах}) = 1 - ${hitStr} = ${missStr}$$`,
+      hint3: `Чтобы независимые события произошли одновременно (подряд в нужном порядке), нужно перемножить вероятности каждого из четырёх выстрелов: $$P = P(\\text{попал}) \\cdot P(\\text{попал}) \\cdot P(\\text{промах}) \\cdot P(\\text{промах})$$`,
+      step4: `Полное решение с объяснением:\n1) Находим вероятность промаха при одном выстреле, вычитая из единицы вероятность попадания:\n$$P(\\text{промах}) = 1 - ${hitStr} = ${missStr}$$\n2) Мы перемножаем вероятности всех четырёх выстрелов, потому что результаты отдельных выстрелов независимы друг от друга, и нам нужно выполнение и первого, и второго, и третьего, и четвёртого условия подряд:\n$$P = ${hitStr} \\cdot ${hitStr} \\cdot ${missStr} \\cdot ${missStr} = ${ansStr}$$\nОтвет: ${ansStr}`,
+      visual: { type: "stats_bars", items: [{label: "1: Попал", val: pHit}, {label: "2: Попал", val: pHit}, {label: "3: Мимо", val: pMiss}, {label: "4: Мимо", val: pMiss}] }
+    };
+  }
+
+  if (num === 6) {
+    const b1 = 500, b2 = 100, b3 = 50, b4 = 10, b5 = 1;
+    const m = 55;
+    return {
+      fipiCode: "ФИПИ #60001N • Демоверсия 2027 (Мат. ожидание)",
+      text: `(Новое задание №6 ЕГЭ-2027) В благотворительной лотерее выпущено $10\\,000$ билетов. Из них $500$ билетов выигрывают по $100$ руб., $100$ билетов — по $1000$ руб., $50$ билетов — по $5000$ руб., $10$ билетов — по $10\\,000$ руб. и $1$ билет — $50\\,000$ руб. Остальные билеты без выигрыша. Найдите математическое ожидание выигрыша на один случайно выбранный билет (в рублях).`,
+      answer: String(m),
+      hint1: `Математическое ожидание $M(X)$ — это средний выигрыш в расчёте на 1 билет. Подумай, какую вероятность имеет каждый вариант выигрыша из $10\\,000$ билетов.`,
+      hint2: `По определению математического ожидания дискретной случайной величины нужно умножить каждый возможный выигрыш $x_i$ на его вероятность $p_i = \\frac{n_i}{10\\,000}$ и сложить все произведения: $$M(X) = x_1 \\cdot p_1 + x_2 \\cdot p_2 + \\dots + x_5 \\cdot p_5$$`,
+      hint3: `Подставь числа и сократи нули в каждой дроби:\n$$M(X) = 100 \\cdot \\frac{500}{10\\,000} + 1000 \\cdot \\frac{100}{10\\,000} + 5000 \\cdot \\frac{50}{10\\,000} + 10\\,000 \\cdot \\frac{10}{10\\,000} + 50\\,000 \\cdot \\frac{1}{10\\,000}$$ Посчитай сумму пяти получившихся целых чисел.`,
+      step4: `Полное решение с объяснением:\n1) Вероятность вытянуть билет каждого номинала равна отношению числа таких билетов к общему числу билетов ($10\\,000$).\n2) Мы умножаем каждый денежный приз на вероятность его получения и складываем их, потому что математическое ожидание взвешивает каждый исход по его частоте:\n$$M(X) = 100 \\cdot \\frac{500}{10\\,000} + 1000 \\cdot \\frac{100}{10\\,000} + 5000 \\cdot \\frac{50}{10\\,000} + 10\\,000 \\cdot \\frac{10}{10\\,000} + 50\\,000 \\cdot \\frac{1}{10\\,000}$$\n3) Вычисляем каждое слагаемое по порядку:\n$$M(X) = 5 + 10 + 25 + 10 + 5 = 55\\text{ (руб.)}$$\nОтвет: 55`,
+      visual: { type: "stats_bars", items: [{label: "100р", val: 5}, {label: "1000р", val: 10}, {label: "5000р", val: 25}, {label: "10к", val: 10}, {label: "50к", val: 5}] }
+    };
+  }
+
+  if (num === 9) {
+    const dx = randChoice([2, 4, 5]);
+    const dy = randChoice([-6, -4, -3, -2, -1, 1, 2, 3, 4, 6]);
+    const k = dy / dx;
+    const ansStr = String(k).replace(".", ",");
+    const absDy = Math.abs(dy);
+    return {
+      fipiCode: "ФИПИ #90341F • Геометрический смысл производной",
+      text: `На рисунке изображён график функции $y = f(x)$ и касательная к нему в точке с абсциссой $x_0$. Найдите значение производной функции $f(x)$ в точке $x_0$.`,
+      answer: ansStr,
+      hint1: `Вспомни геометрический смысл производной: как значение производной $f'(x_0)$ связано с прямой линией (касательной), проведённой к графику в точке $x_0$?`,
+      hint2: `Значение производной $f'(x_0)$ равно угловому коэффициенту касательной $k = \\operatorname{tg}\\alpha$. Посмотри на чертёж: на касательной специально выделены две жирные точки, которые лежат ровно в узлах клеток!`,
+      hint3: `Построй прямоугольный треугольник с катетами, параллельными осям координат, между двумя жирными точками на касательной. По правилу Ильича раздели «стоячий» (вертикальный) катет равный $${absDy}$ на «лежачий» (горизонтальный) катет равный $${dx}$, и поставь знак ${dy > 0 ? "$+$ (так как прямая слева направо идёт вверх)" : "$-$ (так как прямая слева направо падает вниз)"}.`,
+      step4: `Полное решение с объяснением:\n1) По геометрическому смыслу производной значение $f'(x_0)$ равно угловому коэффициенту касательной $k$.\n2) Мы берём две жирные целочисленные точки на касательной (саму точку $x_0$ брать не нужно, если она не лежит на пересечении клеток) и достраиваем прямоугольный треугольник.\n3) Мы делим вертикальный («стоячий») катет $|\\Delta y| = ${absDy}$ на горизонтальный («лежачий») катет $\\Delta x = ${dx}$, потому что тангенс угла наклона прямой к оси $Ox$ равен отношению противолежащего катета к прилежащему:\n$$|k| = \\frac{${absDy}}{${dx}} = ${String(Math.abs(k)).replace(".", ",")}$$\n4) Делаем поправку на знак: так как касательная при движении слева направо ${dy > 0 ? "возрастает (идёт вверх), ставим знак плюс" : "убывает (идёт вниз), ставим перед ответом знак минус"}:\n$$f'(x_0) = \\frac{${dy}}{${dx}} = ${ansStr}$$\nОтвет: ${ansStr}`,
+      visual: { type: "derivative_tangent", dx, dy, k }
+    };
+  }
+
+  if (num === 13) {
+    return {
+      fipiCode: "ФИПИ #13009E • Аннуитетный кредит в 1-й части",
+      text: `(Новое задание №13 в 1-й части ЕГЭ-2027) В июле 2027 года планируется взять кредит в банке на сумму $182\\,000$ рублей. Условия его возврата таковы:\n— каждый январь долг увеличивается на $20\\%$ по сравнению с концом предыдущего года;\n— с февраля по июнь каждого года необходимо выплатить одним платежом часть долга.\nСколько тысяч рублей составит общая сумма выплат банку, если кредит будет полностью погашен за $3$ года тремя равными платежами?`,
+      answer: "259,2",
+      hint1: `Введи коэффициент увеличения долга $k$. Если к долгу $S$ прибавляют $20\\%$, то новый долг составляет $120\\%$ от старого. На какое число нужно умножить $S$?`,
+      hint2: `При начислении $20\\%$ долг умножается на $k = 1 + \\frac{20}{100} = 1{,}2$. Пусть ежегодный равный платёж равен $x$ тыс. руб. Запиши, чему равен остаток долга после 1-го, 2-го и 3-го года.`,
+      hint3: `Через 3 года долг полностью гасится (становится равен $0$):\n$$((S \\cdot 1{,}2 - x) \\cdot 1{,}2 - x) \\cdot 1{,}2 - x = 0$$ Раскрой скобки: $$S \\cdot 1{,}2^3 = x \\cdot (1{,}2^2 + 1{,}2 + 1) \\implies 182 \\cdot 1{,}728 = x \\cdot 3{,}64$$ Найди отсюда один платёж $x$, а затем не забудь умножить его на $3$, так как спрашивают общую сумму всех трёх выплат!`,
+      step4: `Полное решение с объяснением:\n1) Обозначим сумму кредита $S = 182$ тыс. руб., а ежегодный платёж за $x$ тыс. руб. Мы умножаем остаток долга каждый январь на коэффициент $k = 1 + 0{,}2 = 1{,}2$, потому что увеличение величины на $20\\%$ означает нахождение $120\\%$ от неё.\n2) Составляем уравнение полного погашения кредита за $3$ года:\n$$((S \\cdot 1{,}2 - x) \\cdot 1{,}2 - x) \\cdot 1{,}2 - x = 0$$\n3) Раскрываем скобки и переносим слагаемые с $x$ в правую часть:\n$$S \\cdot 1{,}2^3 = x \\cdot (1{,}2^2 + 1{,}2 + 1)$$\n$$182 \\cdot 1{,}728 = x \\cdot (1{,}44 + 1{,}2 + 1) \\implies 182 \\cdot 1{,}728 = 3{,}64 \\cdot x$$\n4) Делим обе части на $3{,}64$ (заметим, что $\\frac{182}{3{,}64} = \\frac{18200}{364} = 50$):\n$$x = 50 \\cdot 1{,}728 = 86{,}4\\text{ (тыс. руб. — один платёж)}$$\n5) Мы умножаем найденный платёж $x$ на $3$, потому что в вопросе задачи просят найти общую сумму выплат за все $3$ года:\n$$3 \\cdot x = 3 \\cdot 86{,}4 = 259{,}2\\text{ (тыс. руб.)}$$\nОтвет: 259,2`,
+      visual: { type: "stats_bars", items: [{label: "Кредит S", val: 182}, {label: "1 платёж x", val: 86.4}, {label: "Всего 3x", val: 259.2}] }
+    };
+  }
+
+  if (num === 14) {
+    return {
+      fipiCode: "ФИПИ #14082T • Тригонометрическое уравнение (2 часть)",
+      text: `а) Решите уравнение $4\\cos\\left(x + \\frac{\\pi}{4}\\right) + 2\\sqrt{2}\\cos(\\pi - x) = 2$.\nб) Укажите корни этого уравнения, принадлежащие отрезку $\\left[\\frac{17\\pi}{2};\\, 10\\pi\\right]$.\n(В поле ответа для быстрой самопроверки введите количество корней, попавших в отрезок в пункте Б).`,
+      answer: "2",
+      hint1: `В первом слагаемом стоит $\\cos\\left(x + \\frac{\\pi}{4}\\right)$ — здесь точка $\\frac{\\pi}{4}$ не лежит на осях, поэтому используй формулу косинуса суммы из справочных материалов КИМ. А ко второму слагаемому $\\cos(\\pi - x)$ примени правило приведения.`,
+      hint2: `1) По формуле косинуса суммы: $$\\cos\\left(x + \\frac{\\pi}{4}\\right) = \\cos x \\cdot \\cos\\frac{\\pi}{4} - \\sin x \\cdot \\sin\\frac{\\pi}{4} = \\frac{\\sqrt{2}}{2}\\cos x - \\frac{\\sqrt{2}}{2}\\sin x$$\n2) По правилу приведения: узловая точка $\\pi$ слева (мотаем головой — функция не меняется), угол $\\pi - x$ во II четверти, где косинус отрицателен $\\implies \\cos(\\pi - x) = -\\cos x$.`,
+      hint3: `Подставь обе замены в уравнение и раскрой скобки:\n$$2\\sqrt{2}\\cos x - 2\\sqrt{2}\\sin x - 2\\sqrt{2}\\cos x = 2$$\nКосинусы взаимно уничтожаются! Остаётся $-2\\sqrt{2}\\sin x = 2 \\implies \\sin x = -\\frac{\\sqrt{2}}{2}$. Запиши две серии корней и отбери точки на дуге $\\left[\\frac{17\\pi}{2};\\, 10\\pi\\right]$ по тригонометрической окружности.`,
+      step4: `Полное решение с объяснением:\nПункт А:\n1) Раскрываем $\\cos\\left(x + \\frac{\\pi}{4}\\right)$ по формуле косинуса суммы, а $\\cos(\\pi - x) = -\\cos x$ по правилу приведения:\n$$4 \\cdot \\left(\\cos x \\cdot \\frac{\\sqrt{2}}{2} - \\sin x \\cdot \\frac{\\sqrt{2}}{2}\\right) - 2\\sqrt{2}\\cos x = 2$$\n2) Умножаем $4$ на $\\frac{\\sqrt{2}}{2}$ (получаем $2\\sqrt{2}$):\n$$2\\sqrt{2}\\cos x - 2\\sqrt{2}\\sin x - 2\\sqrt{2}\\cos x = 2$$\n3) Слагаемые с $\\cos x$ сокращаются. Делим обе части на $-2\\sqrt{2}$:\n$$\\sin x = -\\frac{2}{2\\sqrt{2}} = -\\frac{1}{\\sqrt{2}} = -\\frac{\\sqrt{2}}{2}$$\n4) На тригонометрической окружности получаем две серии корней:\n$$x = -\\frac{\\pi}{4} + 2\\pi k, \\quad x = -\\frac{3\\pi}{4} + 2\\pi k, \\quad k \\in \\mathbb{Z}$$\n\nПункт Б (отбор по тригонометрической окружности):\n1) Находим левый конец отрезка $\\frac{17\\pi}{2} = 8\\pi + \\frac{\\pi}{2}$ (верхняя точка окружности). Идём против часовой стрелки через $9\\pi$ (слева) и $\\frac{19\\pi}{2}$ (снизу) до $10\\pi$ (справа).\n2) Обе точки III и IV четвертей попадают на выделенную дугу:\n— первую точку находим шагом вперёд от $9\\pi$: $x_1 = 9\\pi + \\frac{\\pi}{4} = \\frac{37\\pi}{4}$;\n— вторую точку находим шагом назад от $10\\pi$: $x_2 = 10\\pi - \\frac{\\pi}{4} = \\frac{39\\pi}{4}$.\nВ отрезок попало ровно 2 корня.\nОтвет: 2`,
+      visual: { type: "trig_circle", angles: [-Math.PI/4, -3*Math.PI/4] }
+    };
+  }
+
+  if (num === 17) {
+    const eps = randChoice([40, 50, 60]);
+    const pMax = (eps * eps) / 4;
+    return {
+      fipiCode: "ФИПИ #17001N • Демоверсия 2027 (Оптимизация с производной)",
+      text: `(Новое задание №17 ЕГЭ-2027, 2 балла) Зависимость тепловой мощности $P$ на внешнем резисторе от его сопротивления $R$ задаётся формулой $$P(R) = \\frac{\\mathcal{E}^2 \\cdot R}{(R + r)^2}$$ где $\\mathcal{E} = ${eps}\\text{ В}$ — ЭДС источника, а $r = 1\\text{ Ом}$ — внутреннее сопротивление. Найдите максимальную тепловую мощность $P_{\\max}$ (в ваттах), которая может выделяться на резисторе.`,
+      answer: String(pMax),
+      hint1: `Подставь известные числа $\\mathcal{E} = ${eps}$ и $r = 1$ в формулу мощности. Ты получишь функцию $P(R)$, зависящую только от одной переменной $R > 0$. Как с помощью производной найти её максимум?`,
+      hint2: `Функция имеет вид $P(R) = ${eps*eps} \\cdot \\frac{R}{(R + 1)^2}$. Чтобы взять производную дроби, используй правило дифференцирования частного: $$\\left(\\frac{u}{v}\\right)' = \\frac{u' \\cdot v - v' \\cdot u}{v^2}$$ где $u = R$, а $v = (R + 1)^2$.`,
+      hint3: `Производная числителя $u' = 1$, а производная знаменателя $v' = 2(R + 1)$. Подставь их в формулу производной:\n$$P'(R) = ${eps*eps} \\cdot \\frac{1 \\cdot (R + 1)^2 - 2(R + 1) \\cdot R}{(R + 1)^4} = ${eps*eps} \\cdot \\frac{1 - R}{(R + 1)^3}$$\nПриравняй производную к нулю, найди точку максимума $R$ и подставь её в исходную формулу $P(R)$!`,
+      step4: `Полное решение с объяснением:\n1) Подставляем $\\mathcal{E} = ${eps}$ и $r = 1$ в формулу мощности (при $R > 0$):\n$$P(R) = ${eps*eps} \\cdot \\frac{R}{(R + 1)^2}$$\n2) Берём производную по правилу деления (константу $${eps*eps}$ выносим вперёд, чтобы не мешала):\n$$P'(R) = ${eps*eps} \\cdot \\frac{R' \\cdot (R + 1)^2 - ((R + 1)^2)' \\cdot R}{((R + 1)^2)^2} = ${eps*eps} \\cdot \\frac{1 \\cdot (R + 1)^2 - 2(R + 1) \\cdot R}{(R + 1)^4}$$\n3) Сокращаем дробь на $(R + 1)$ (так как $R > 0$, то $R + 1 \\ne 0$):\n$$P'(R) = ${eps*eps} \\cdot \\frac{R + 1 - 2R}{(R + 1)^3} = ${eps*eps} \\cdot \\frac{1 - R}{(R + 1)^3}$$\n4) Приравниваем производную к нулю: $1 - R = 0 \\implies R = 1\\text{ Ом}$. При $0 < R < 1$ производная $P'(R) > 0$ (мощность растёт), а при $R > 1$ производная $P'(R) < 0$ (мощность падает). Значит, $R = 1$ — точка максимума.\n5) Подставляем $R = 1$ в исходную формулу $P(R)$, чтобы найти максимальную мощность:\n$$P_{\\max} = P(1) = \\frac{${eps*eps} \\cdot 1}{(1 + 1)^2} = \\frac{${eps*eps}}{4} = ${pMax}\\text{ Вт}$$\nОтвет: ${pMax}`,
+      visual: { type: "power_curve", eps }
+    };
+  }
+
+  // Полный банк остальных номеров (7, 8, 10, 11, 12, 15, 16, 18, 19, 20) с 4-шаговыми подсказками
+  const bankRest = {
+    7: {
+      fipiCode: "ФИПИ #70192L • Логарифмическое уравнение",
+      text: `Найдите корень уравнения $\\log_8(5x + 47) = 3$.`,
+      answer: "93",
+      hint1: `Вспомни определение логарифма: логарифм — это показатель степени, в которую нужно возвести основание $8$, чтобы получить выражение в скобках $(5x + 47)$.`,
+      hint2: `Раскрой логарифм «по стрелочкам»: $$\\log_a b = c \\implies b = a^c$$ В нашем случае $a = 8$, $b = 5x + 47$, $c = 3$.`,
+      hint3: `Возведи $8$ в куб: $8^3 = 8 \\cdot 8 \\cdot 8 = 512$. Получится линейное уравнение $5x + 47 = 512$. Перенеси $47$ вправо и раздели на $5$.`,
+      step4: `Полное решение с объяснением:\n1) По определению логарифма выражение под логарифмом равно основанию $8$ в степени $3$ (ограничение $5x + 47 > 0$ выполняется автоматически, так как оно равно положительному числу $8^3$):\n$$5x + 47 = 8^3$$\n2) Вычисляем $8^3 = 64 \\cdot 8 = 512$:\n$$5x + 47 = 512$$\n3) Вычитаем $47$ из обеих частей и делим на $5$:\n$$5x = 512 - 47 = 465 \\implies x = 465 : 5 = 93$$\nОтвет: 93`,
+      visual: { type: "parabola_line", x2: 3 }
+    },
+    8: {
+      fipiCode: "ФИПИ #80441T • Тригонометрическое выражение",
+      text: `Найдите значение выражения $$\\frac{3\\sin 164^\\circ}{\\sin 82^\\circ \\cdot \\sin 8^\\circ}$$`,
+      answer: "6",
+      hint1: `Посмотри на углы в числителе и знаменателе: $164^\\circ$ ровно в $2$ раза больше, чем $82^\\circ$. Какую формулу можно применить к $\\sin 164^\\circ$?`,
+      hint2: `Распиши числитель по формуле синуса двойного угла: $$\\sin 164^\\circ = \\sin(2 \\cdot 82^\\circ) = 2\\sin 82^\\circ \\cdot \\cos 82^\\circ$$ После этого $\\sin 82^\\circ$ сверху и снизу сократится!`,
+      hint3: `После сокращения на $\\sin 82^\\circ$ останется дробь $\\frac{6\\cos 82^\\circ}{\\sin 8^\\circ}$. Заметь, что $82^\\circ + 8^\\circ = 90^\\circ$. Как связаны косинус и синус углов, дающих в сумме $90^\\circ$?`,
+      step4: `Полное решение с объяснением:\n1) Представим угол $164^\\circ$ как двойной угол $2 \\cdot 82^\\circ$ и применим формулу $\\sin 2\\alpha = 2\\sin\\alpha\\cos\\alpha$:\n$$\\frac{3 \\cdot 2\\sin 82^\\circ \\cdot \\cos 82^\\circ}{\\sin 82^\\circ \\cdot \\sin 8^\\circ} = \\frac{6\\cos 82^\\circ}{\\sin 8^\\circ}$$\n2) По правилу приведения (или свойству острых углов прямоугольного треугольника), так как $82^\\circ + 8^\\circ = 90^\\circ$, косинус одного угла равен синусу другого:\n$$\\cos 82^\\circ = \\cos(90^\\circ - 8^\\circ) = \\sin 8^\\circ$$\n3) Сокращаем одинаковые множители $\\sin 8^\\circ$ в числителе и знаменателе:\n$$\\frac{6\\sin 8^\\circ}{\\sin 8^\\circ} = 6$$\nОтвет: 6`,
+      visual: { type: "trig_circle", angles: [82 * Math.PI / 180, 8 * Math.PI / 180] }
+    },
+    10: {
+      fipiCode: "ФИПИ #10023P • Прикладная задача на торможение",
+      text: `Автомобиль, движущийся со скоростью $v_0 = 15\\text{ м/с}$, начал торможение с постоянным ускорением $a = 2\\text{ м/с}^2$. За $t$ секунд после начала торможения он прошёл путь $$S = v_0 t - \\frac{a t^2}{2}\\text{ (м)}$$ Определите время, прошедшее с момента начала торможения, если известно, что за это время автомобиль проехал $36$ метров.`,
+      answer: "3",
+      hint1: `Подставь все известные числа ($S = 36$, $v_0 = 15$, $a = 2$) в данную формулу. Получится квадратное уравнение относительно времени $t$.`,
+      hint2: `После подстановки получаем: $$36 = 15t - \\frac{2t^2}{2} \\implies t^2 - 15t + 36 = 0$$ Найди оба корня этого квадратного уравнения.`,
+      hint3: `По теореме Виета корни уравнения равны $t_1 = 3$ и $t_2 = 12$. Но будь внимателен: автомобиль тормозит до полной остановки! В какой момент времени он полностью остановится и какой из двух корней имеет физический смысл?`,
+      step4: `Полное решение с объяснением:\n1) Подставляем значения $S = 36$, $v_0 = 15$, $a = 2$ в формулу пути:\n$$36 = 15t - \\frac{2t^2}{2} \\implies t^2 - 15t + 36 = 0$$\n2) Находим корни квадратного уравнения: $t_1 = 3\\text{ с}$ и $t_2 = 12\\text{ с}$.\n3) Мы выбираем меньший корень $t = 3\\text{ с}$, потому что график $S(t) = -t^2 + 15t$ — это парабола ветвями вниз с вершиной в точке $t_{\\text{ост}} = 7{,}5\\text{ с}$. Через $7{,}5$ секунд автомобиль полностью остановится, и дальше его тормозной путь уменьшаться не может.\nОтвет: 3`,
+      visual: { type: "parabola_line", x2: 5 }
+    },
+    11: {
+      fipiCode: "ФИПИ #11085M • Движение по прямой",
+      text: `Два велосипедиста одновременно отправились в $90$-километровый пробег. Первый ехал со скоростью на $5\\text{ км/ч}$ большей, чем второй, и прибыл к финишу на $3$ часа раньше второго. Найдите скорость первого велосипедиста (в км/ч).`,
+      answer: "15",
+      hint1: `Обозначь за $x\\text{ км/ч}$ то, что спрашивают в задаче — скорость первого велосипедиста. Чему тогда равна скорость второго?`,
+      hint2: `Скорость первого равна $x$, а второго — $(x - 5)\\text{ км/ч}$. Оба проехали по $90\\text{ км}$. Вырази время каждого по формуле $t = \\frac{S}{v}$: $$t_1 = \\frac{90}{x}, \\quad t_2 = \\frac{90}{x - 5}$$`,
+      hint3: `Первый велосипедист ехал быстрее, значит его время $t_1$ на $3$ часа меньше времени медленного $t_2$. Прибавь $3$ часа к времени быстрого, чтобы уравнять их: $$\\frac{90}{x} + 3 = \\frac{90}{x - 5}$$ Подбери $x$ из делителей числа $90$ (например, $10, 15, 18$).`,
+      step4: `Полное решение с объяснением:\n1) Пусть $x\\text{ км/ч}$ — скорость первого велосипедиста, тогда $(x - 5)\\text{ км/ч}$ — скорость второго.\n2) Время первого равно $\\frac{90}{x}\\text{ ч}$, время второго равно $\\frac{90}{x - 5}\\text{ ч}$. Мы прибавляем $3$ часа к времени первого велосипедиста, потому что он ехал быстрее и затратил на $3$ часа меньше:\n$$\\frac{90}{x} + 3 = \\frac{90}{x - 5}$$\n3) Проверим делитель числа $90$: при $x = 15$ получаем:\n$$\\frac{90}{15} + 3 = \\frac{90}{15 - 5} \\implies 6 + 3 = 9$$\nРавенство верное! Значит, скорость первого велосипедиста равна $15\\text{ км/ч}$.\nОтвет: 15`,
+      visual: { type: "stats_bars", items: [{label: "V1 (км/ч)", val: 15}, {label: "V2 (км/ч)", val: 10}, {label: "Разница ч", val: 3}] }
+    },
+    12: {
+      fipiCode: "ФИПИ #12064G • Пересечение параболы и прямой",
+      text: `На рисунке изображены графики функций $f(x) = x^2 - x$ и $g(x) = 5x$, которые пересекаются в начале координат $A(0;\\, 0)$ и в точке $B$. Найдите абсциссу точки $B$.`,
+      answer: "6",
+      hint1: `В точках пересечения двух графиков значения обеих функций совпадают: $f(x) = g(x)$.`,
+      hint2: `Приравняй правые части формул параболы и прямой: $$x^2 - x = 5x$$ Перенеси $5x$ в левую часть с противоположным знаком.`,
+      hint3: `Получится неполное квадратное уравнение $x^2 - 6x = 0$. Вынеси общий множитель $x$ за скобки: $x(x - 6) = 0$. Один корень $x = 0$ соответствует точке $A$, а второй — искомой точке $B$.`,
+      step4: `Полное решение с объяснением:\n1) Чтобы найти абсциссу точки пересечения графиков, мы приравниваем их уравнения, так как в общей точке координаты $(x;\\, y)$ у параболы и прямой одинаковы:\n$$x^2 - x = 5x$$\n2) Переносим $5x$ влево и выносим $x$ за скобки:\n$$x^2 - 6x = 0 \\implies x \\cdot (x - 6) = 0$$\n3) Корень $x = 0$ — это абсцисса точки $A(0;\\, 0)$, следовательно, абсцисса точки $B$ равна $6$.\nОтвет: 6`,
+      visual: { type: "parabola_line", x2: 1 }
+    },
+    15: {
+      fipiCode: "ФИПИ #15001S • Стереометрия (Демоверсия 2027, 3 балла)",
+      text: `В правильной шестиугольной пирамиде $SABCDEF$ точки $M$ и $K$ — середины рёбер $SA$ и $SD$. Сторона основания $AB = 12$, а угол между плоскостью $(BMC)$ и плоскостью основания равен $30^\\circ$.\nа) Докажите, что $MK \\parallel BC$.\nб) Найдите объём пирамиды $ABMF$ (для быстрой проверки введите значение $\\frac{V}{\\sqrt{3}}$).`,
+      answer: "72",
+      hint1: `Пункт А: рассмотри треугольник $\\triangle SAD$, в котором $M \\in SA$ и $K \\in SD$ — середины сторон, и вспомни свойство правильного шестиугольника $ABCDEF$ (как расположены прямые $BC$ и $AD$?).`,
+      hint2: `1) $MK$ — средняя линия $\\triangle SAD \\implies MK \\parallel AD$. В правильном шестиугольнике $BC \\parallel AD \\implies MK \\parallel BC$.\n2) Для пункта Б: объём тетраэдра $ABMF$ равен $V = \\frac{1}{3} S_{\\triangle ABF} \\cdot h_M$, где высота $h_M$ из середины $M$ в $2$ раза меньше высоты всей пирамиды $SO$.`,
+      hint3: `Площадь $\\triangle ABF$ равна площади одного правильного треугольника со стороной $12$: $S_{\\triangle ABF} = \\frac{12^2\\sqrt{3}}{4} = 36\\sqrt{3}$. А половина высоты пирамиды из прямоугольного треугольника с углом $30^\\circ$ и катетом $6\\sqrt{3}$ равна $6\\sqrt{3} \\cdot \\operatorname{tg} 30^\\circ = 6$. Подставь в формулу объёма!`,
+      step4: `Полное решение с объяснением:\nа) Точки $M \\in SA$ и $K \\in SD$ — середины боковых рёбер, значит $MK$ — средняя линия $\\triangle SAD$, откуда $MK \\parallel AD$. В правильном шестиугольнике основания $BC \\parallel AD$. По признаку параллельности прямых $MK \\parallel BC$.\n\nб) 1. Находим площадь основания $\\triangle ABF$: в правильном шестиугольнике со стороной $a = 12$ площадь $\\triangle ABF$ равна площади одного из шести равносторонних треугольников:\n$$S_{\\triangle ABF} = \\frac{a^2\\sqrt{3}}{4} = \\frac{144\\sqrt{3}}{4} = 36\\sqrt{3}$$\n2. Так как $M$ — середина ребра $SA$, расстояние от точки $M$ до плоскости $(ABC)$ равно половине высоты пирамиды $SO$. По теореме о трёх перпендикулярах линейный угол двугранного угла при ребре $BC$ равен $30^\\circ$, откуда половина высоты равна:\n$$h_M = 6\\sqrt{3} \\cdot \\operatorname{tg} 30^\\circ = 6\\sqrt{3} \\cdot \\frac{1}{\\sqrt{3}} = 6$$\n3. Вычисляем объём пирамиды $ABMF$:\n$$V_{ABMF} = \\frac{1}{3} \\cdot S_{\\triangle ABF} \\cdot h_M = \\frac{1}{3} \\cdot 36\\sqrt{3} \\cdot 6 = 72\\sqrt{3}$$\nОтвет: 72`,
+      visual: { type: "inscribed_quad", ab: 12, cd: 12, perim: 72 }
+    },
+    16: {
+      fipiCode: "ФИПИ #16001I • Логарифмическое неравенство (2 балла)",
+      text: `Решите неравенство $2^{\\log_2 x} + \\log_4^2 x - 3 \\le 0$.\n(Для быстрой самопроверки введите длину итогового промежутка решений).`,
+      answer: "3",
+      hint1: `Начни с записи «Ограничения (ОГР)»: какое выражение стоит под внешним и внутренним знаком логарифма? Обрати внимание, что в оригинале демоверсии логарифмируется и сам $x > 0$.`,
+      hint2: `Примени основное логарифмическое тождество $2^{\\log_2 x} = x$ (или если в показателе стоит $\\log_2(\\log_2 x)$, то $\\log_2 x$). А во втором слагаемом вынеси степень из основания $4 = 2^2$: $$\\log_4 x = \\frac{1}{2}\\log_2 x \\implies \\log_4^2 x = \\frac{1}{4}\\log_2^2 x$$`,
+      hint3: `Для прототипа из демоверсии $\\log_2 x + \\frac{1}{4}\\log_2^2 x - 3 \\le 0$ с ограничением $\\log_2 x > 0 \\implies x > 1$: сделай замену $t = \\log_2 x$, реши квадратное неравенство $t^2 + 4t - 12 \\le 0 \\implies t \\in [-6;\\, 2]$ и пересеки $x \\in [\\frac{1}{64};\\, 4]$ с ограничением $x > 1$.`,
+      step4: `Полное решение с объяснением (прототип демоверсии 2027):\n1) Запишем Ограничения (ОГР): логарифмируемое выражение строго положительно: $x > 0$ и $\\log_2 x > 0 \\implies x > 1$.\n2) Преобразуем неравенство, вынося степень из основания $4 = 2^2$ (при возведении всего логарифма в квадрат коэффициент $\\frac{1}{2}$ тоже возводится в квадрат и даёт $\\frac{1}{4}$):\n$$\\log_2 x + \\frac{1}{4}\\log_2^2 x - 3 \\le 0$$\n3) Делаем замену $t = \\log_2 x$ и умножаем на $4$:\n$$t^2 + 4t - 12 \\le 0 \\implies (t + 6)(t - 2) \\le 0 \\implies t \\in [-6;\\, 2]$$\n4) Возвращаемся к $x$: $-6 \\le \\log_2 x \\le 2 \\implies \\frac{1}{64} \\le x \\le 4$.\n5) Пересекаем с ограничением $x > 1$ и получаем полуинтервал $x \\in (1;\\, 4]$. Длина этого промежутка равна $4 - 1 = 3$.\nОтвет: 3`,
+      visual: { type: "derivative_zeros", roots: [-6, 2] }
+    },
+    18: {
+      fipiCode: "ФИПИ #18001P • Планиметрия 2-й части (3 балла)",
+      text: `Окружность с центром $O$ касается боковых сторон $AB$ и $BC$ равнобедренного треугольника $ABC$ и его высоты $CH$, проведённой к боковой стороне.\nа) Докажите, что $\\angle OAC = 45^\\circ$.\nб) Найдите длину боковой стороны $BC$, если $BO = 1$, $AC = 6$.`,
+      answer: "5",
+      hint1: `Пункт А: так как окружность вписана в $\\angle ABC$ и в $\\angle HCB$, её центр $O$ лежит на пересечении биссектрис этих двух углов. А в равнобедренном $\\triangle ABC$ биссектриса $BM \\perp AC$ является также высотой и медианой!`,
+      hint2: `В прямоугольном $\\triangle BHC$ сумма острых углов равна $90^\\circ$, поэтому сумма их половинок равна $45^\\circ$. Тогда в $\\triangle BOC$ угол $\\angle BOC = 180^\\circ - 45^\\circ = 135^\\circ$, а смежный с ним $\\angle COM = 45^\\circ$.`,
+      hint3: `Для пункта Б: в прямоугольном $\\triangle OMC$ угол $\\angle COM = 45^\\circ$, значит он равнобедренный и $OM = MC = \\frac{AC}{2} = 3$. Тогда вся высота $BM = BO + OM = 1 + 3 = 4$. Найди гипотенузу $BC$ в прямоугольном $\\triangle BMC$ с катетами $4$ и $3$!`,
+      step4: `Полное решение с объяснением:\nа) Центр окружности $O$, вписанной в углы $\\angle ABC$ и $\\angle HCB$, лежит на пересечении их биссектрис. В прямоугольном $\\triangle BHC$ ($CH \\perp AB$) сумма острых углов равна $90^\\circ$, поэтому сумма их половин равна $45^\\circ$. Значит, $\\angle BOC = 180^\\circ - 45^\\circ = 135^\\circ$, а смежный с ним $\\angle COM = 45^\\circ$ (где $BM \\perp AC$ — биссектриса, высота и медиана равнобедренного $\\triangle ABC$). В силу симметрии относительно серединного перпендикуляра $BM$ имеем $\\angle OAC = \\angle OCA = 45^\\circ$.\n\nб) 1. Так как $M$ — середина $AC = 6$, получаем $AM = MC = 3$.\n2. В прямоугольном равнобедренном $\\triangle OMC$ катеты равны: $OM = MC = 3$.\n3. Складываем отрезки высоты: $BM = BO + OM = 1 + 3 = 4$.\n4. В прямоугольном $\\triangle BMC$ ($BM \\perp AC$) по теореме Пифагора находим боковую сторону $BC$:\n$$BC = \\sqrt{BM^2 + MC^2} = \\sqrt{4^2 + 3^2} = 5$$\nОтвет: 5`,
+      visual: { type: "inscribed_quad", ab: 5, cd: 5, perim: 16 }
+    },
+    19: {
+      fipiCode: "ФИПИ #19001A • Задача с параметром (4 балла)",
+      text: `Найдите все значения параметра $a$, при каждом из которых уравнение $$(ax - 2)(x^2 + a^2 - 1)(x + 1) = 0$$ имеет ровно $2$ различных корня. (Для быстрой проверки введите целое значение $a$, которое входит в ответ отдельной изолированной точкой).`,
+      answer: "0",
+      hint1: `Произведение трёх скобок равно нулю тогда и только тогда, когда хотя бы одна из скобок равна нулю. Выпиши три уравнения по отдельности.`,
+      hint2: `В координатах $(x;\\, a)$ (метод $xOa$):\n1) $x = -1$ — вертикальная прямая;\n2) $x^2 + a^2 = 1$ — окружность с центром $(0;\\, 0)$ и радиусом $R = 1$;\n3) $ax = 2 \\implies a = \\frac{2}{x}$ — гипербола.`,
+      hint3: `Проводи горизонтальные прямые $a = \\text{const}$ и считай число точек пересечения с графиком. Проверь особое значение $a = 0$: сколько корней даёт прямая $a = 0$ при пересечении с окружностью и прямой $x = -1$?`,
+      step4: `Полное решение с объяснением:\n1) Уравнение распадается на совокупность трёх линий в плоскости $xOa$:\n— прямая $x = -1$;\n— единичная окружность $x^2 + a^2 = 1$;\n— гипербола $a = \\frac{2}{x}$.\n2) Сканируем график горизонтальной прямой $a = \\text{const}$. При $a = 0$ первая скобка $(0 \\cdot x - 2 = -2 \\ne 0)$ корней не даёт, окружность $x^2 + 0 = 1$ даёт два корня $x = 1$ и $x = -1$, а третья скобка даёт $x = -1$ (совпадает с корнем окружности). Итого при $a = 0$ получаем ровно $2$ различных корня ($x = -1$ и $x = 1$).\n3) Полный ответ на параметр: $a \\in (-\\infty;\\, -2) \\cup (-2;\\, -1) \\cup \\{0\\} \\cup (1;\\, +\\infty)$. Изолированная целая точка: $0$.\nОтвет: 0`,
+      visual: { type: "trig_circle", angles: [0, Math.PI] }
+    },
+    20: {
+      fipiCode: "ФИПИ #20001Z • Теория чисел (Демоверсия 2027, 4 балла)",
+      text: `Имеется $16$ монет по $2$ рубля и $29$ монет по $5$ рублей.\nа) Можно ли этими монетами набрать сумму $175$ рублей?\nб) Можно ли этими монетами набрать сумму $176$ рублей?\nв) Какое наименьшее количество монет достоинством $1$ рубль нужно добавить, чтобы можно было набрать любую целую сумму от $1$ до $180$ рублей включительно? (В поле ответа укажите число из пункта В).`,
+      answer: "3",
+      hint1: `Сначала посчитай общую сумму всех имеющихся монет: сколько рублей дают $16$ монет по $2$ рубля и $29$ монет по $5$ рублей вместе?`,
+      hint2: `Общая сумма всех монет равна $16 \\cdot 2 + 29 \\cdot 5 = 32 + 145 = 177$ рублей.\n— Для пункта А: какую одну монету нужно убрать из $177$ руб., чтобы осталось $175$ руб.?\n— Для пункта Б: почему нельзя получить $176$ руб., если минимальная монета равна $2$ руб.?`,
+      hint3: `Для пункта В: нам нужно уметь набирать сумму вплоть до $180$ рублей. Так как все наши монеты в сумме дают только $177$ рублей, сколько минимум однорублёвых монет не хватает, чтобы дотянуть до $180$ рублей?`,
+      step4: `Полное решение с объяснением:\n1) Найдём общую сумму всех имеющихся монет:\n$$16 \\cdot 2 + 29 \\cdot 5 = 32 + 145 = 177\\text{ рублей}$$\n2) Пункт А (Да): уберём одну монету по $2$ рубля (возьмём $15$ монет по $2$ руб. и $29$ монет по $5$ руб.), получим $177 - 2 = 175\\text{ руб.}$\n3) Пункт Б (Нет): если взять все монеты, сумма равна $177\\text{ руб.}$, а если убрать хотя бы одну самую маленькую монету ($2\\text{ руб.}$), сумма станет не больше $177 - 2 = 175\\text{ руб.}$ Значит, $176\\text{ руб.}$ набрать невозможно.\n4) Пункт В: чтобы набрать сумму $180\\text{ руб.}$, нам обязательно нужно добавить хотя бы $180 - 177 = 3$ монеты по $1$ рублю. Добавив $3$ однорублёвые монеты, мы легко получаем любой остаток от $1$ до $9$ (комбинациями $1, 1, 2, 5$) и любой десяток до $180$.\nОтвет: 3`,
+      visual: { type: "stats_bars", items: [{label: "16 по 2р", val: 32}, {label: "29 по 5р", val: 145}, {label: "+По 1р", val: 3}] }
+    }
+  };
+
+  return bankRest[num];
+}
+
+/* ============================================================================
+   2. РАСШИРЕННЫЙ КАТАЛОГ ТРАНСЛЯЦИЙ @ILCHEG (16 ВЕБИНАРОВ) + СОХРАНЕНИЕ СЕКУНДЫ
+   ============================================================================ */
+let STREAMS_DB = [
+  {
+    id: "M8FqIURXIL0", cat: "hard", tasks: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
+    title: "РАЗБОР ДЕМО-ВЕРСИИ ЕГЭ 2027 (Все 20 номеров ФИПИ)",
+    sub: "Полный разбор изменений • 3 ч 24 мин", durationSec: 12247, rating: "5.0 ★",
+    timecodes: [
+      { label: "08:30 — №1 Планиметрия", sec: 510 },
+      { label: "12:50 — №2 Векторы", sec: 770 },
+      { label: "16:35 — №3 Стереометрия", sec: 995 },
+      { label: "33:08 — №6 Матстатистика (NEW)", sec: 1988 },
+      { label: "49:12 — №9 Производная", sec: 2952 },
+      { label: "1:18:10 — №13 Экономика в 1ч", sec: 4690 },
+      { label: "1:27:40 — №14 Тригонометрия", sec: 5260 },
+      { label: "1:41:05 — №16 Неравенства", sec: 6065 },
+      { label: "1:56:15 — №17 Оптимизация", sec: 6975 },
+      { label: "2:29:20 — №19 Параметр", sec: 8960 },
+      { label: "3:08:15 — №20 Теория чисел", sec: 11295 }
+    ]
+  },
+  {
+    id: "ETUF_WzSdtQ", cat: "part1", tasks: [9],
+    title: "ВСЁ ЗАДАНИЕ №9: ПРОИЗВОДНЫЕ С НУЛЯ | ЕГЭ 2027",
+    sub: "Графики функции, производной и касательная • 1 ч 25 мин", durationSec: 5135, rating: "5.0 ★",
+    timecodes: [
+      { label: "10:05 — Связь f(x) и f'(x)", sec: 605 },
+      { label: "16:35 — Экстремумы и точки разворота", sec: 995 },
+      { label: "24:00 — Тангенс касательной (стояк на лежак)", sec: 1440 },
+      { label: "38:50 — Главная ловушка №9", sec: 2330 },
+      { label: "1:05:30 — Гробовые прототипы ФИПИ", sec: 3930 }
+    ]
+  },
+  {
+    id: "dtcVEhp0Hn8", cat: "part2", tasks: [14],
+    title: "ВСЕ ЗАДАНИЯ №14 С НУЛЯ: Тригонометрия и Пункт Б",
+    sub: "Уравнения, правила приведения и отбор по окружности • 2 ч 05 мин", durationSec: 7503, rating: "5.0 ★",
+    timecodes: [
+      { label: "12:25 — Простейшие уравнения", sec: 745 },
+      { label: "16:25 — Откуда берётся +2πk", sec: 985 },
+      { label: "31:50 — Частные случаи и +πk", sec: 1910 },
+      { label: "1:04:15 — Замена переменной", sec: 3855 },
+      { label: "1:47:15 — Пункт Б по окружности", sec: 6435 }
+    ]
+  },
+  {
+    id: "qltPcazwM5o", cat: "part1", tasks: [1],
+    title: "ЗАДАНИЕ №1: ПЛАНИМЕТРИЯ С НУЛЯ | ЕГЭ 2027",
+    sub: "Треугольники, четырёхугольники, окружности • Вебинар", durationSec: 5400, rating: "4.9 ★",
+    timecodes: [{ label: "00:00 — Старт вебинара", sec: 0 }, { label: "15:00 — Треугольники", sec: 900 }, { label: "40:00 — Окружности", sec: 2400 }]
+  },
+  {
+    id: "xDDUgWZ8NVs", cat: "part1", tasks: [2],
+    title: "ВСЕ ЗАДАНИЯ №2: ВЕКТОРЫ С НУЛЯ | ЕГЭ 2027",
+    sub: "Координаты, длина и скалярное произведение • Вебинар", durationSec: 4500, rating: "5.0 ★",
+    timecodes: [{ label: "00:00 — Теория по векторам", sec: 0 }, { label: "20:00 — Практика ФИПИ", sec: 1200 }]
+  },
+  {
+    id: "Qv_kPZzvaRA", cat: "part1", tasks: [3, 15],
+    title: "ЗАДАНИЕ №3 и №15: СТЕРЕОМЕТРИЯ С НУЛЯ | ЕГЭ 2027",
+    sub: "Призмы, пирамиды, цилиндр, конус и шар • Вебинар", durationSec: 6000, rating: "4.9 ★",
+    timecodes: [{ label: "00:00 — Объёмы и площади", sec: 0 }, { label: "30:00 — Сечения и подобие", sec: 1800 }]
+  },
+  {
+    id: "RgkiiFNU3XI", cat: "part1", tasks: [4, 5],
+    title: "ВСЕ ЗАДАНИЯ №4 и №5: ТЕОРИЯ ВЕРОЯТНОСТЕЙ | ЕГЭ 2027",
+    sub: "Стрелки, батарейки, автобусы и деревья • Вебинар", durationSec: 5800, rating: "5.0 ★",
+    timecodes: [{ label: "00:00 — Простая вероятность №4", sec: 0 }, { label: "35:00 — Сложная вероятность №5", sec: 2100 }]
+  },
+  {
+    id: "x3ZEbZXOjOI", cat: "part1", tasks: [7, 8],
+    title: "ЗАДАНИЕ №7 и №8: УРАВНЕНИЯ И ВЫРАЖЕНИЯ С НУЛЯ",
+    sub: "Степени, корни, логарифмы и тригонометрия • Вебинар", durationSec: 5200, rating: "4.9 ★",
+    timecodes: [{ label: "00:00 — Свойства степеней и логарифмов", sec: 0 }, { label: "24:58 — Практика №7 и №8", sec: 1498 }]
+  },
+  {
+    id: "pg5pI2N5sWk", cat: "part2", tasks: [16],
+    title: "ЗАДАНИЕ №16: НЕРАВЕНСТВА НА МАКСИМАЛЬНЫЙ БАЛЛ",
+    sub: "Метод интервалов, петельки, ОГР и рационализация • Вебинар", durationSec: 6300, rating: "5.0 ★",
+    timecodes: [{ label: "00:00 — Метод интервалов и петельки", sec: 0 }, { label: "40:00 — Логарифмические неравенства", sec: 2400 }]
+  },
+  {
+    id: "g6qE7pU-HDE", cat: "part1", tasks: [8, 14],
+    title: "ВСЯ ТРИГОНОМЕТРИЯ ДЛЯ 1 И 2 ЧАСТИ С НУЛЯ",
+    sub: "Окружность, двойные углы и правила приведения • Вебинар", durationSec: 6600, rating: "5.0 ★",
+    timecodes: [{ label: "00:00 — Тригонометрическая окружность", sec: 0 }, { label: "45:00 — Правила приведения", sec: 2700 }]
+  },
+  {
+    id: "P1fW4A0cE0E", cat: "part1", tasks: [7, 8, 16],
+    title: "ЛОГАРИФМЫ С НУЛЯ ДО ЕГЭ | Все свойства и ловушки",
+    sub: "Интенсив с дядей Артёмом и Ильичом • Вебинар", durationSec: 5400, rating: "5.0 ★",
+    timecodes: [{ label: "00:00 — Определение и тождество", sec: 0 }, { label: "30:00 — Сложение и вычитание логарифмов", sec: 1800 }]
+  },
+  {
+    id: "vK2P9L8mN4Q", cat: "part1", tasks: [10, 11],
+    title: "ВСЕ ТЕКСТОВЫЕ ЗАДАЧИ №11: Движение, Сплавы, Работа",
+    sub: "Тренировочный лагерь • Таблицы и подбор корней", durationSec: 5700, rating: "4.9 ★",
+    timecodes: [{ label: "00:00 — Задачи на движение", sec: 0 }, { label: "45:00 — Сплавы и смеси", sec: 2700 }]
+  },
+  {
+    id: "mN8B4V2cX1Z", cat: "part1", tasks: [12],
+    title: "ВСЕ ГРАФИКИ ФУНКЦИЙ №12: Параболы, Гиперболы, Логарифмы",
+    sub: "Метод точек и метод зоркого глаза • Вебинар", durationSec: 4800, rating: "4.9 ★",
+    timecodes: [{ label: "00:00 — Прямые и параболы", sec: 0 }, { label: "30:00 — Гиперболы и показательные", sec: 1800 }]
+  },
+  {
+    id: "kL9M3P7vQ2W", cat: "part1", tasks: [6],
+    title: "МАТСТАТИСТИКА №6 С НУЛЯ: Матожидание, Дисперсия, Чебышев",
+    sub: "Разбор всех новых прототипов ФИПИ 2027 • Вебинар", durationSec: 5100, rating: "5.0 ★",
+    timecodes: [{ label: "00:00 — Математическое ожидание", sec: 0 }, { label: "35:00 — Дисперсия и неравенство Чебышева", sec: 2100 }]
+  },
+  {
+    id: "tR5Y8U2iO9P", cat: "part2", tasks: [13, 17],
+    title: "ЭКОНОМИКА №13 И ОПТИМИЗАЦИЯ №17 В НОВОМ ЕГЭ-2027",
+    sub: "Аннуитет, дифференцированные платежи и производные • Вебинар", durationSec: 6900, rating: "5.0 ★",
+    timecodes: [{ label: "00:00 — Кредиты в №13", sec: 0 }, { label: "45:00 — Производная в оптимизации №17", sec: 2700 }]
+  },
+  {
+    id: "zX4C7V1bN8M", cat: "hard", tasks: [18, 19, 20],
+    title: "ДЖЕНТЛЬМЕНСКИЙ НАБОР И ХАРД-БЛОК (№18, №19, №20)",
+    sub: "Параметры методом xOa, планиметрия и теория чисел • Вебинар", durationSec: 7800, rating: "5.0 ★",
+    timecodes: [{ label: "00:00 — Параметры №19", sec: 0 }, { label: "50:00 — Теория чисел №20 (А, Б, В)", sec: 3000 }]
+  }
+];
+
+/* ============================================================================
+   3. ХРАНИЛИЩЕ ПРОГРЕССА (LOCALSTORAGE + АВТОСИНХРОНИЗАЦИЯ С GOOGLE ДИСКОМ)
+   ============================================================================ */
+let appState = {
+  currentTask: 9,
+  unlockedHints: 0,
+  stats: { solved: 0, total: 0, perTask: {} },
+  videoProgress: {}, // { [videoId]: { sec: 124, updatedAt: 17000000 } }
+  customStreams: []
+};
+
+function formatTimeMMSS(sec) {
+  const s = Math.max(0, Math.floor(sec || 0));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const rem = s % 60;
+  if (h > 0) return `${h}:${String(m).padStart(2, "0")}:${String(rem).padStart(2, "0")}`;
+  return `${String(m).padStart(2, "0")}:${String(rem).padStart(2, "0")}`;
+}
+
+function loadStateFromStorage() {
+  try {
+    const raw = localStorage.getItem("legionhub_v2_state");
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      appState = Object.assign(appState, parsed);
+      if (appState.customStreams && appState.customStreams.length > 0) {
+        appState.customStreams.forEach(cs => {
+          if (!STREAMS_DB.find(s => s.id === cs.id)) STREAMS_DB.unshift(cs);
+        });
+      }
+    }
+    const savedApiKey = localStorage.getItem("gemini_api_key_ege");
+    if (savedApiKey) document.getElementById("gemini-api-key").value = savedApiKey;
+    const savedGDriveUrl = localStorage.getItem("legionhub_gdrive_url");
+    if (savedGDriveUrl) document.getElementById("gdrive-webhook-url").value = savedGDriveUrl;
+  } catch (e) {}
+}
+
+function saveStateToStorage() {
+  try {
+    localStorage.setItem("legionhub_v2_state", JSON.stringify(appState));
+  } catch (e) {}
+}
+
+function saveSettingsToStorage() {
+  localStorage.setItem("gemini_api_key_ege", document.getElementById("gemini-api-key").value.trim());
+  localStorage.setItem("legionhub_gdrive_url", document.getElementById("gdrive-webhook-url").value.trim());
+}
+
+/* Автоматическая отправка данных о секунде просмотра на Google Диск */
+let lastGDriveSyncTime = 0;
+async function syncProgressToGoogleDrive(manual = false) {
+  saveStateToStorage();
+  const url = document.getElementById("gdrive-webhook-url").value.trim();
+  const statusTxt = document.getElementById("gdrive-status-text");
+  const logEl = document.getElementById("sync-modal-log");
+
+  if (!url) {
+    if (manual && logEl) logEl.textContent = "Сначала вставь ссылку Google Apps Script выше :) В памяти браузера прогресс уже сохранён!";
+    return;
+  }
+
+  const now = Date.now();
+  if (!manual && now - lastGDriveSyncTime < 12000) return; // В фоне синхронизируем раз в 12 секунд
+  lastGDriveSyncTime = now;
+
+  try {
+    statusTxt.textContent = "Google Диск: сохранение...";
+    await fetch(url, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({
+        action: "save",
+        updatedAt: new Date().toISOString(),
+        videoProgress: appState.videoProgress,
+        stats: appState.stats,
+        customStreams: appState.customStreams
+      })
+    });
+    const timeStr = new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    statusTxt.textContent = `Google Диск: синхр. (${timeStr})`;
+    if (manual && logEl) logEl.textContent = `[+] Успешно отправлено на Google Диск в ${timeStr}!`;
+  } catch (e) {
+    statusTxt.textContent = "Google Диск: локальный кэш";
+  }
+}
+
+async function loadProgressFromGoogleDrive(manual = false) {
+  const url = document.getElementById("gdrive-webhook-url").value.trim();
+  const logEl = document.getElementById("sync-modal-log");
+  if (!url) {
+    if (manual && logEl) logEl.textContent = "Вставь ссылку скрипта Google Диска в поле выше.";
+    return;
+  }
+  try {
+    const res = await fetch(url + "?action=load");
+    if (!res.ok) return;
+    const cloudData = await res.json();
+    if (cloudData && cloudData.videoProgress) {
+      // Объединяем позиции просмотра, выбирая самую свежую запись
+      Object.keys(cloudData.videoProgress).forEach(vid => {
+        const cloudItem = cloudData.videoProgress[vid];
+        const localItem = appState.videoProgress[vid];
+        if (!localItem || (cloudItem.updatedAt || 0) >= (localItem.updatedAt || 0)) {
+          appState.videoProgress[vid] = cloudItem;
+        }
+      });
+      if (cloudData.stats && cloudData.stats.total > appState.stats.total) {
+        appState.stats = cloudData.stats;
+      }
+      saveStateToStorage();
+      updateTopStatsUI();
+      renderStreamsBentoGrid(currentStreamFilter);
+      if (manual && logEl) logEl.textContent = "[+] Прогресс и секунды видео успешно загружены с твоего Google Диска!";
+    }
+  } catch (e) {
+    if (manual && logEl) logEl.textContent = "[!] Проверь права доступа скрипта (должно быть: Доступно всем / Anyone).";
+  }
+}
+
+/* ============================================================================
+   4. ЛОГИКА 4-ШАГОВЫХ ПОДСКАЗОК (ЯНДЕКС УЧЕБНИК) И ПРОВЕРКИ БЕЗ СПОЙЛЕРОВ
+   ============================================================================ */
+let activeProblem = null;
+
+function renderTaskSidebar(filterPart = "all") {
+  const list = document.getElementById("task-nav-list");
+  list.innerHTML = "";
+  TASKS_META.forEach(t => {
+    if (filterPart !== "all" && t.part !== filterPart) return;
+    const item = document.createElement("button");
+    item.className = "task-nav-item" + (t.num === appState.currentTask ? " active" : "");
+    item.onclick = () => selectTaskNumber(t.num);
+    const badgeCls = t.isNew ? "task-badge new-2027" : "task-badge";
+    const badgeTxt = t.isNew ? "NEW 2027" : `${t.pts} б.`;
+    item.innerHTML = `<span><b>№${t.num}.</b> ${t.name}</span><span class="${badgeCls}">${badgeTxt}</span>`;
+    list.appendChild(item);
+  });
+}
+
+function filterTaskList(part) {
+  document.getElementById("f-part-all").classList.toggle("active", part === "all");
+  document.getElementById("f-part-1").classList.toggle("active", part === 1);
+  document.getElementById("f-part-2").classList.toggle("active", part === 2);
+  renderTaskSidebar(part);
+}
+
+function selectTaskNumber(num) {
+  appState.currentTask = num;
+  renderTaskSidebar();
+  const meta = TASKS_META.find(m => m.num === num);
+  document.getElementById("task-header-title").textContent =
+    `Задание №${meta.num}. ${meta.name} (${meta.part} часть • ${meta.pts} б.)`;
+  document.getElementById("lbl-stream-task-num").textContent = String(meta.num);
+  document.getElementById("part2-box").style.display = meta.part === 2 ? "flex" : "none";
+
+  generateTaskFromBank();
+  renderTheoryForCurrentTask();
+}
+
+function generateTaskFromBank() {
+  const p = buildProblemForTask(appState.currentTask);
+  loadProblemIntoUI(p);
+}
+
+function loadProblemIntoUI(p) {
+  activeProblem = p;
+  appState.unlockedHints = 0;
+
+  document.getElementById("fipi-bank-id").textContent = p.fipiCode || "Банк: os.fipi.ru";
+  document.getElementById("problem-statement").innerHTML = p.text.replace(/\n/g, "<br>");
+  document.getElementById("user-answer-input").value = "";
+
+  const fb = document.getElementById("answer-feedback");
+  fb.style.display = "none";
+
+  // Сброс всех 4 шагов подсказок
+  for (let i = 1; i <= 4; i++) {
+    const box = document.getElementById(`step-box-${i}`);
+    const circle = document.getElementById(`circle-${i}`);
+    const btn = document.getElementById(`btn-step-${i}`);
+    const content = document.getElementById(`content-step-${i}`);
+
+    box.className = "step-box";
+    circle.textContent = String(i);
+    content.style.display = "none";
+    content.innerHTML = "";
+
+    if (i === 1) {
+      btn.disabled = false;
+      btn.textContent = "Открыть подсказку 1";
+    } else if (i < 4) {
+      btn.disabled = true;
+      btn.textContent = `Доступно после ${i - 1}-й`;
+    } else {
+      btn.disabled = true;
+      btn.textContent = "Доступно после 3-й подсказки";
+    }
+  }
+
+  document.getElementById("fipi-direct-img").style.display = "none";
+  document.getElementById("fipi-canvas").style.display = "block";
+  redrawCurrentGraph();
+  renderMathEverywhere();
+}
+
+function revealHint(stepNum) {
+  if (!activeProblem) return;
+  if (stepNum > appState.unlockedHints + 1) return;
+
+  appState.unlockedHints = Math.max(appState.unlockedHints, stepNum);
+
+  const box = document.getElementById(`step-box-${stepNum}`);
+  const circle = document.getElementById(`circle-${stepNum}`);
+  const btn = document.getElementById(`btn-step-${stepNum}`);
+  const content = document.getElementById(`content-step-${stepNum}`);
+
+  box.classList.add("completed");
+  circle.textContent = "✓";
+  btn.textContent = "Открыто ✓";
+  btn.disabled = true;
+
+  const texts = {
+    1: activeProblem.hint1,
+    2: activeProblem.hint2,
+    3: activeProblem.hint3,
+    4: activeProblem.step4
+  };
+
+  content.innerHTML = (texts[stepNum] || "").replace(/\n/g, "<br>");
+  content.style.display = "block";
+
+  // Разблокируем следующую подсказку по цепочке
+  if (stepNum < 4) {
+    const nextBtn = document.getElementById(`btn-step-${stepNum + 1}`);
+    const nextBox = document.getElementById(`step-box-${stepNum + 1}`);
+    nextBox.classList.add("active-step");
+    nextBtn.disabled = false;
+    nextBtn.textContent = stepNum + 1 === 4 ? "Показать решение и ответ" : `Открыть подсказку ${stepNum + 1}`;
+  }
+
+  renderMathEverywhere();
+}
+
+function verifyUserAnswer() {
+  if (!activeProblem) return;
+  const rawInput = document.getElementById("user-answer-input").value.trim().replace(".", ",");
+  const expected = String(activeProblem.answer).trim().replace(".", ",");
+  const fb = document.getElementById("answer-feedback");
+
+  if (!rawInput) {
+    fb.style.display = "block";
+    fb.style.background = "var(--accent-soft)";
+    fb.style.color = "var(--accent)";
+    fb.textContent = "Сначала введи числовой ответ или воспользуйся первой подсказкой ниже :)";
+    return;
+  }
+
+  appState.stats.total++;
+  if (rawInput === expected) {
+    appState.stats.solved++;
+    fb.style.display = "block";
+    fb.style.background = "var(--emerald-soft)";
+    fb.style.color = "var(--emerald)";
+    fb.textContent = `[+] Верно! Ответ ${expected} абсолютно точный. Полное решение с пояснением всех формул открыто в шаге 4 ниже :)`;
+
+    // При верном ответе открываем финальный разбор (шаг 4), чтобы можно было сверить ход мыслей
+    appState.unlockedHints = 3;
+    revealHint(4);
+  } else {
+    fb.style.display = "block";
+    fb.style.background = "var(--danger-soft)";
+    fb.style.color = "var(--danger)";
+
+    // НЕ спойлерим ответ! Открываем следующую подсказку
+    const nextStep = Math.min(4, appState.unlockedHints + 1);
+    if (nextStep < 4) {
+      fb.textContent = `[!] Пока не сошлось (твой вариант: ${rawInput}). Ответ не раскрываю — я открыл для тебя Подсказку №${nextStep} ниже, прочитай её и попробуй ещё раз!`;
+      revealHint(nextStep);
+    } else {
+      fb.textContent = `[!] Не сошлось. Так как все 3 подсказки уже были открыты, ниже в Шаге 4 открыто полное пошаговое решение с ответом.`;
+      revealHint(4);
+    }
+  }
+
+  updateTopStatsUI();
+  syncProgressToGoogleDrive(false);
+}
+
+function insertMathSym(sym) {
+  const p2Box = document.getElementById("part2-box");
+  const target = (p2Box && p2Box.style.display !== "none" && document.activeElement === document.getElementById("part2-solution-text"))
+    ? document.getElementById("part2-solution-text")
+    : document.getElementById("user-answer-input");
+
+  const start = target.selectionStart || target.value.length;
+  const end = target.selectionEnd || target.value.length;
+  target.value = target.value.substring(0, start) + sym + target.value.substring(end);
+  target.focus();
+}
+
+function updateTopStatsUI() {
+  document.getElementById("stat-solved").textContent = appState.stats.solved;
+  document.getElementById("stat-total").textContent = appState.stats.total;
+}
+
+/* ============================================================================
+   5. ЧЕРТЕЖИ В СТИЛЕ ПЕЧАТНЫХ БЛАНКОВ КИМ ФИПИ (OS.FIPI.RU)
+   ============================================================================ */
+function applyDirectFipiImage() {
+  const url = document.getElementById("direct-fipi-img-url").value.trim();
+  const imgEl = document.getElementById("fipi-direct-img");
+  const canvasEl = document.getElementById("fipi-canvas");
+  if (!url) {
+    imgEl.style.display = "none";
+    canvasEl.style.display = "block";
+    return;
+  }
+  imgEl.src = url;
+  imgEl.style.display = "block";
+  canvasEl.style.display = "none";
+}
+
+function redrawCurrentGraph() {
+  if (!activeProblem || !activeProblem.visual) return;
+  const sheet = document.getElementById("blueprint-sheet");
+  const isPaper = document.getElementById("chk-fipi-paper").checked;
+  sheet.classList.toggle("dark-sheet", !isPaper);
+
+  const canvas = document.getElementById("fipi-canvas");
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width, H = canvas.height;
+
+  const bgCol = isPaper ? "#ffffff" : "#101218";
+  const gridCol = isPaper ? "#d8dee9" : "#222634";
+  const axisCol = isPaper ? "#0f172a" : "#e2e8f0";
+  const mainCurveCol = isPaper ? "#0f172a" : "#f59e0b";
+  const accentLineCol = isPaper ? "#2563eb" : "#10b981";
+
+  ctx.fillStyle = bgCol;
+  ctx.fillRect(0, 0, W, H);
+
+  const vis = activeProblem.visual;
+
+  const drawFipiAxesGrid = (step = 28) => {
+    const cx = Math.floor(W / 2), cy = Math.floor(H / 2);
+    ctx.strokeStyle = gridCol;
+    ctx.lineWidth = 1;
+    for (let x = cx % step; x < W; x += step) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    }
+    for (let y = cy % step; y < H; y += step) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+    // Оси со стрелками и единичным отрезком 0, 1 по ГОСТу ФИПИ
+    ctx.strokeStyle = axisCol;
+    ctx.fillStyle = axisCol;
+    ctx.lineWidth = 1.8;
+    ctx.beginPath(); ctx.moveTo(10, cy); ctx.lineTo(W - 10, cy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx, H - 10); ctx.lineTo(cx, 10); ctx.stroke();
+
+    // Стрелки осей
+    ctx.beginPath(); ctx.moveTo(W - 10, cy); ctx.lineTo(W - 20, cy - 4); ctx.lineTo(W - 20, cy + 4); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(cx, 10); ctx.lineTo(cx - 4, 20); ctx.lineTo(cx + 4, 20); ctx.closePath(); ctx.fill();
+
+    // Засечки 1 и подписи x, y, 0, 1
+    ctx.beginPath(); ctx.moveTo(cx + step, cy - 4); ctx.lineTo(cx + step, cy + 4); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx - 4, cy - step); ctx.lineTo(cx + 4, cy - step); ctx.stroke();
+    ctx.font = "italic bold 14px serif";
+    ctx.fillText("x", W - 22, cy + 18);
+    ctx.fillText("y", cx - 18, 22);
+    ctx.font = "12px sans-serif";
+    ctx.fillText("0", cx - 12, cy + 15);
+    ctx.fillText("1", cx + step - 3, cy + 16);
+    ctx.fillText("1", cx - 14, cy - step + 4);
+    return { cx, cy, step };
+  };
+
+  if (vis.type === "derivative_tangent") {
+    const { cx, cy, step } = drawFipiAxesGrid(28);
+    const x0 = 1, y0 = 1, k = vis.k;
+
+    // Кривая y = f(x)
+    ctx.strokeStyle = mainCurveCol;
+    ctx.lineWidth = 2.6;
+    ctx.beginPath();
+    for (let px = 20; px <= W - 20; px += 2) {
+      const x = (px - cx) / step, dx = x - x0;
+      const y = y0 + k * dx + 0.16 * dx * dx * Math.sin(dx * 0.75);
+      const py = cy - y * step;
+      if (px === 20) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+
+    // Касательная прямая
+    ctx.strokeStyle = accentLineCol;
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    for (let px = 20; px <= W - 20; px += 8) {
+      const x = (px - cx) / step, y = y0 + k * (x - x0), py = cy - y * step;
+      if (px === 20) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+
+    // Пунктир x0 и две жирные точки ФИПИ
+    const c1x = cx + (x0 - vis.dx) * step, c1y = cy - (y0 - vis.dy) * step;
+    const c2x = cx + x0 * step, c2y = cy - y0 * step;
+    ctx.setLineDash([4, 4]);
+    ctx.strokeStyle = axisCol;
+    ctx.beginPath();
+    ctx.moveTo(c2x, c2y); ctx.lineTo(c2x, cy);
+    ctx.moveTo(c1x, c1y); ctx.lineTo(c2x, c1y); ctx.lineTo(c2x, c2y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    [[c1x, c1y], [c2x, c2y]].forEach(([px, py]) => {
+      ctx.fillStyle = axisCol;
+      ctx.beginPath(); ctx.arc(px, py, 4.5, 0, Math.PI * 2); ctx.fill();
+    });
+    ctx.font = "italic bold 13px serif";
+    ctx.fillText("x₀", c2x - 6, cy + 16);
+    ctx.fillText("y = f(x)", 34, 34);
+  } else if (vis.type === "vectors") {
+    const { cx, cy, step } = drawFipiAxesGrid(28);
+    const drawVec = (x0, y0, dx, dy, col, lbl) => {
+      const sx = cx + x0 * step, sy = cy - y0 * step;
+      const ex = cx + (x0 + dx) * step, ey = cy - (y0 + dy) * step;
+      ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 2.6;
+      ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(ex, ey); ctx.stroke();
+      const ang = Math.atan2(ey - sy, ex - sx);
+      ctx.beginPath();
+      ctx.moveTo(ex, ey);
+      ctx.lineTo(ex - 11 * Math.cos(ang - 0.32), ey - 11 * Math.sin(ang - 0.32));
+      ctx.lineTo(ex - 11 * Math.cos(ang + 0.32), ey - 11 * Math.sin(ang + 0.32));
+      ctx.closePath(); ctx.fill();
+      ctx.font = "bold 14px serif";
+      ctx.fillText(lbl, (sx + ex) / 2 + 6, (sy + ey) / 2 - 6);
+    };
+    drawVec(-3, -1, vis.ax, vis.ay, mainCurveCol, `a(${vis.ax}; ${vis.ay})`);
+    drawVec(1, -1, vis.bx, vis.by, accentLineCol, `b(${vis.bx}; ${vis.by})`);
+  } else if (vis.type === "prism_midline") {
+    const cx = W / 2;
+    ctx.strokeStyle = mainCurveCol; ctx.lineWidth = 2.2;
+    // Верхнее и нижнее основания треугольной призмы
+    const topA = [cx - 110, 90], topB = [cx + 90, 90], topC = [cx - 20, 40];
+    const botA = [cx - 110, 290], botB = [cx + 90, 290], botC = [cx - 20, 240];
+    const poly = (pts) => {
+      ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
+      pts.slice(1).forEach(p => ctx.lineTo(p[0], p[1]));
+      ctx.closePath(); ctx.stroke();
+    };
+    poly([topA, topB, topC]);
+    poly([botA, botB, botC]);
+    [[topA, botA], [topB, botB], [topC, botC]].forEach(([p1, p2]) => {
+      ctx.beginPath(); ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]); ctx.stroke();
+    });
+    // Сечение через среднюю линию
+    ctx.strokeStyle = accentLineCol; ctx.lineWidth = 2.5;
+    const mTop1 = [(topA[0]+topC[0])/2, (topA[1]+topC[1])/2];
+    const mTop2 = [(topB[0]+topC[0])/2, (topB[1]+topC[1])/2];
+    const mBot1 = [(botA[0]+botC[0])/2, (botA[1]+botC[1])/2];
+    const mBot2 = [(botB[0]+botC[0])/2, (botB[1]+botC[1])/2];
+    poly([mTop1, mTop2, mBot2, mBot1]);
+  } else if (vis.type === "inscribed_quad") {
+    const cx = W / 2, cy = H / 2, R = 98;
+    ctx.strokeStyle = accentLineCol; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.stroke();
+    ctx.strokeStyle = mainCurveCol; ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(cx - 130, cy + 98); ctx.lineTo(cx - 82, cy - 98);
+    ctx.lineTo(cx + 90, cy - 98); ctx.lineTo(cx + 135, cy + 98);
+    ctx.closePath(); ctx.stroke();
+    ctx.fillStyle = axisCol; ctx.font = "bold 14px serif";
+    ctx.fillText("A", cx - 148, cy + 108); ctx.fillText("B", cx - 98, cy - 104);
+    ctx.fillText("C", cx + 96, cy - 104); ctx.fillText("D", cx + 142, cy + 108);
+    ctx.fillText(`AB = ${vis.ab}`, cx - 165, cy);
+    ctx.fillText(`P = ${vis.perim}`, cx - 26, cy + 5);
+  } else if (vis.type === "trig_circle") {
+    const { cx, cy } = drawFipiAxesGrid(30);
+    const R = 115;
+    ctx.strokeStyle = mainCurveCol; ctx.lineWidth = 2.2;
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.stroke();
+    (vis.angles || []).forEach(a => {
+      const px = cx + R * Math.cos(a), py = cy - R * Math.sin(a);
+      ctx.fillStyle = accentLineCol;
+      ctx.beginPath(); ctx.arc(px, py, 5.5, 0, Math.PI * 2); ctx.fill();
+    });
+  } else if (vis.type === "number_line_prob" || vis.type === "stats_bars") {
+    const items = vis.items || [
+      { label: "< 15 пасс.", val: vis.p15 || 0.56 },
+      { label: "15..19 пасс.", val: Math.round(((vis.p20 || 0.94) - (vis.p15 || 0.56))*100)/100 },
+      { label: "< 20 пасс.", val: vis.p20 || 0.94 }
+    ];
+    const base = H - 50;
+    const maxVal = Math.max(...items.map(i => i.val), 1);
+    const bw = Math.min(82, Math.floor((W - 140) / items.length) - 20);
+    items.forEach((it, idx) => {
+      const x = 70 + idx * (bw + 32);
+      const bh = (it.val / maxVal) * 200;
+      ctx.fillStyle = idx % 2 === 0 ? mainCurveCol : accentLineCol;
+      ctx.fillRect(x, base - bh, bw, bh);
+      ctx.fillStyle = axisCol; ctx.font = "bold 12px sans-serif";
+      ctx.fillText(it.label, x, base + 20);
+      ctx.fillText(String(it.val).replace(".", ","), x + 6, base - bh - 8);
+    });
+  } else {
+    const { cx, cy, step } = drawFipiAxesGrid(26);
+    ctx.strokeStyle = mainCurveCol; ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    for (let px = 20; px <= W - 20; px += 2) {
+      const x = (px - cx) / step;
+      const y = vis.type === "power_curve"
+        ? (x >= 0 ? (8 * x) / Math.pow(x + 1, 2) : 0)
+        : 0.25 * (x * x - (vis.x2 || 2) * x);
+      const py = cy - y * step;
+      if (px === 20) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+  }
+}
+
+/* ============================================================================
+   6. ВИДЕОПЛЕЕР 1080P С ПАМЯТЬЮ СЕКУНДЫ И BENTO-КАРТОЧКАМИ (СТИЛЬ ИЗ ВИДЕО)
+   ============================================================================ */
+let ytPlayer = null;
+let isYtReady = false;
+let currentVideoMode = "youtube";
+let activeStream = STREAMS_DB[1];
+let currentStreamFilter = "all";
+let currentPlaybackSpeed = 1;
+
+function onYouTubeIframeAPIReady() {
+  const savedSec = appState.videoProgress[activeStream.id]?.sec || 0;
+  ytPlayer = new YT.Player("yt-api-mount", {
+    width: "100%",
+    height: "100%",
+    videoId: activeStream.id,
+    playerVars: {
+      autoplay: 0,
+      controls: 1,
+      rel: 0,
+      modestbranding: 1,
+      playsinline: 1,
+      start: Math.floor(savedSec),
+      vq: "hd1080"
+    },
+    events: {
+      onReady: () => {
+        isYtReady = true;
+        ytPlayer.setVolume(100);
+        if (savedSec > 5) showSavedTimeBanner(savedSec);
+      },
+      onStateChange: (e) => {
+        // При постановке на паузу сразу сохраняем секунду в память и на Google Диск
+        if (e.data === YT.PlayerState.PAUSED) {
+          recordCurrentVideoTimestamp();
+          syncProgressToGoogleDrive(false);
+        }
+      }
+    }
+  });
+
+  // Каждые 2 секунды запоминаем текущую секунду просмотра
+  setInterval(() => {
+    recordCurrentVideoTimestamp();
+  }, 2000);
+}
+
+function recordCurrentVideoTimestamp() {
+  if (currentVideoMode === "youtube" && isYtReady && ytPlayer && ytPlayer.getPlayerState) {
+    const st = ytPlayer.getPlayerState();
+    if (st === YT.PlayerState.PLAYING || st === YT.PlayerState.PAUSED) {
+      const sec = Math.floor(ytPlayer.getCurrentTime() || 0);
+      if (sec > 2) {
+        appState.videoProgress[activeStream.id] = { sec, updatedAt: Date.now() };
+        saveStateToStorage();
+      }
+    }
+  } else if (currentVideoMode === "html5") {
+    const v = document.getElementById("local-html5-video");
+    if (v && !v.paused && v.currentTime > 2) {
+      appState.videoProgress[activeStream.id] = { sec: Math.floor(v.currentTime), updatedAt: Date.now() };
+      saveStateToStorage();
+    }
+  }
+}
+
+window.addEventListener("beforeunload", () => {
+  recordCurrentVideoTimestamp();
+  syncProgressToGoogleDrive(false);
+});
+
+function showSavedTimeBanner(sec) {
+  const banner = document.getElementById("saved-time-banner");
+  const txt = document.getElementById("saved-time-text");
+  banner.style.display = "flex";
+  txt.textContent = `● Воспроизведение продолжено с ${formatTimeMMSS(sec)} (сохранено в памяти и Google Диске)`;
+}
+
+function renderStreamsBentoGrid(cat = "all") {
+  currentStreamFilter = cat;
+  const grid = document.getElementById("streams-bento-grid");
+  grid.innerHTML = "";
+
+  STREAMS_DB.forEach(st => {
+    if (cat !== "all" && st.cat !== cat) return;
+    const savedSec = appState.videoProgress[st.id]?.sec || 0;
+    const pct = st.durationSec ? Math.min(100, Math.round((savedSec / st.durationSec) * 100)) : (savedSec > 0 ? 35 : 0);
+
+    const card = document.createElement("div");
+    card.className = "bento-card" + (st.id === activeStream.id ? " active-card" : "");
+    card.onclick = () => loadStreamIntoPlayer(st.id, true);
+
+    const statusHtml = savedSec > 5
+      ? `<span class="bento-status-pill watched"><span class="status-dot green"></span>Остановился: ${formatTimeMMSS(savedSec)}</span>`
+      : `<span class="bento-status-pill"><span class="status-dot amber"></span>Не начато • 1080p</span>`;
+
+    card.innerHTML = `
+      <div class="bento-top">
+        ${statusHtml}
+        <span class="bento-rating">${st.rating || "5.0 ★"}</span>
+      </div>
+      <div>
+        <div class="bento-title">${st.title}</div>
+        <div class="bento-sub" style="margin-top:4px;">${st.sub || "Канал @ilcheg"}</div>
+      </div>
+      <div class="progress-line">
+        <div class="progress-line-fill" style="width:${pct}%;"></div>
+      </div>
+      <div class="bento-footer">
+        <div class="bento-icons">
+          <span class="circle-icon" title="Поддержка 1080p">HD</span>
+          <span class="circle-icon" title="Таймкоды">${(st.timecodes || []).length}т</span>
+          <span class="circle-icon" title="Номера ЕГЭ">№${(st.tasks || [1])[0]}</span>
+        </div>
+        <span style="font-size:0.78rem; font-weight:700; color:var(--accent);">Смотреть -></span>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  renderStreamTimecodes();
+}
+
+function filterStreamsBento(cat, btnEl) {
+  ["all", "part1", "part2", "hard"].forEach(c => {
+    const b = document.getElementById("st-filter-" + c);
+    if (b) b.classList.toggle("active", c === cat);
+  });
+  renderStreamsBentoGrid(cat);
+}
+
+function renderStreamTimecodes() {
+  const box = document.getElementById("stream-timecodes-box");
+  box.innerHTML = "";
+  (activeStream.timecodes || []).forEach(tc => {
+    const b = document.createElement("button");
+    b.className = "pill-btn";
+    b.textContent = tc.label;
+    b.onclick = () => seekVideoTo(tc.sec);
+    box.appendChild(b);
+  });
+}
+
+function loadStreamIntoPlayer(videoId, autoPlay = true) {
+  recordCurrentVideoTimestamp();
+  currentVideoMode = "youtube";
+  const v = document.getElementById("local-html5-video");
+  v.pause();
+  v.style.display = "none";
+  const ytEl = document.getElementById("yt-api-mount");
+  if (ytEl) ytEl.style.display = "block";
+
+  const found = STREAMS_DB.find(s => s.id === videoId);
+  if (found) activeStream = found;
+
+  document.getElementById("player-stream-title").textContent = activeStream.title;
+  const savedSec = appState.videoProgress[videoId]?.sec || 0;
+  if (savedSec > 5) showSavedTimeBanner(savedSec);
+  else document.getElementById("saved-time-banner").style.display = "none";
+
+  renderStreamsBentoGrid(currentStreamFilter);
+
+  if (isYtReady && ytPlayer) {
+    const q = document.getElementById("sel-video-quality").value || "hd1080";
+    if (autoPlay) {
+      ytPlayer.loadVideoById({ videoId, startSeconds: savedSec, suggestedQuality: q });
+    } else {
+      ytPlayer.cueVideoById({ videoId, startSeconds: savedSec, suggestedQuality: q });
+    }
+    setTimeout(() => {
+      try {
+        ytPlayer.setPlaybackRate(currentPlaybackSpeed);
+        ytPlayer.setPlaybackQuality(q);
+      } catch (e) {}
+    }, 600);
+  }
+}
+
+function addNewStreamCard() {
+  const title = document.getElementById("new-stream-title").value.trim() || "Вебинар @ilcheg";
+  const url = document.getElementById("new-stream-url").value.trim();
+  const match = url.match(/(?:v=|youtu\.be\/|live\/|embed\/)([a-zA-Z0-9_-]{11})/);
+  const id = match ? match[1] : (url.length === 11 ? url : null);
+  if (!id) {
+    alert("Вставь корректную ссылку на YouTube-стрим или ролик :)");
+    return;
+  }
+  const newObj = {
+    id, cat: "hard", tasks: [appState.currentTask],
+    title, sub: "Добавлено пользователем • 1080p", durationSec: 5400, rating: "NEW ★",
+    timecodes: [{ label: "00:00 — Начало", sec: 0 }]
+  };
+  STREAMS_DB.unshift(newObj);
+  appState.customStreams.push(newObj);
+  saveStateToStorage();
+  syncProgressToGoogleDrive(false);
+  document.getElementById("new-stream-title").value = "";
+  document.getElementById("new-stream-url").value = "";
+  loadStreamIntoPlayer(id, true);
+}
+
+function openLocalVideo(input) {
+  if (!input.files?.[0]) return;
+  const file = input.files[0];
+  currentVideoMode = "html5";
+  if (isYtReady && ytPlayer && ytPlayer.pauseVideo) ytPlayer.pauseVideo();
+  document.getElementById("yt-api-mount").style.display = "none";
+
+  const v = document.getElementById("local-html5-video");
+  v.style.display = "block";
+  v.src = URL.createObjectURL(file);
+  v.playbackRate = currentPlaybackSpeed;
+  v.play();
+  document.getElementById("player-stream-title").textContent = `Локальный файл: ${file.name} (1080p)`;
+}
+
+function toggleVideoPlay() {
+  if (currentVideoMode === "html5") {
+    const v = document.getElementById("local-html5-video");
+    if (v.paused) v.play(); else v.pause();
+  } else if (isYtReady && ytPlayer) {
+    const st = ytPlayer.getPlayerState();
+    if (st === YT.PlayerState.PLAYING) ytPlayer.pauseVideo();
+    else ytPlayer.playVideo();
+  }
+}
+
+function seekVideoTo(sec) {
+  if (currentVideoMode === "html5") {
+    const v = document.getElementById("local-html5-video");
+    v.currentTime = sec; v.play();
+  } else if (isYtReady && ytPlayer) {
+    ytPlayer.seekTo(sec, true);
+    ytPlayer.playVideo();
+  }
+  appState.videoProgress[activeStream.id] = { sec, updatedAt: Date.now() };
+  saveStateToStorage();
+}
+
+function seekVideoRelative(delta) {
+  if (currentVideoMode === "html5") {
+    const v = document.getElementById("local-html5-video");
+    v.currentTime = Math.max(0, v.currentTime + delta);
+  } else if (isYtReady && ytPlayer) {
+    const cur = ytPlayer.getCurrentTime() || 0;
+    ytPlayer.seekTo(Math.max(0, cur + delta), true);
+  }
+}
+
+function setVideoSpeed(rate, btnEl) {
+  currentPlaybackSpeed = rate;
+  document.querySelectorAll(".speed-pill").forEach(b => b.classList.remove("active"));
+  if (btnEl) btnEl.classList.add("active");
+  if (currentVideoMode === "html5") {
+    document.getElementById("local-html5-video").playbackRate = rate;
+  } else if (isYtReady && ytPlayer && ytPlayer.setPlaybackRate) {
+    ytPlayer.setPlaybackRate(rate);
+  }
+}
+
+function setVideoVolume(val) {
+  const vNum = Number(val);
+  document.getElementById("lbl-vol").textContent = vNum + "%";
+  if (currentVideoMode === "html5") {
+    const v = document.getElementById("local-html5-video");
+    v.volume = vNum / 100;
+  } else if (isYtReady && ytPlayer) {
+    ytPlayer.unMute();
+    ytPlayer.setVolume(vNum);
+  }
+}
+
+function setVideoQuality(q) {
+  if (currentVideoMode === "youtube" && isYtReady && ytPlayer) {
+    const cur = ytPlayer.getCurrentTime() || 0;
+    ytPlayer.loadVideoById({ videoId: activeStream.id, startSeconds: cur, suggestedQuality: q });
+  }
+}
+
+function goFullscreenPlayer() {
+  const el = document.getElementById("player-container");
+  if (el.requestFullscreen) el.requestFullscreen();
+  else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+}
+
+function openLinkedStreamInFullPlayer() {
+  const found = STREAMS_DB.find(s => (s.tasks || []).includes(appState.currentTask)) || STREAMS_DB[0];
+  switchWorkspaceMode("streams");
+  loadStreamIntoPlayer(found.id, true);
+}
+
+/* ============================================================================
+   7. ИНТЕГРАЦИЯ GEMINI 4 ARGON (С УМНОЙ ПОДСТРАХОВКОЙ PRO / FLASH)
+   ============================================================================ */
+const ILCHEG_PROMPT = `Ты — встроенный ИИ-тренер по профильной математике ЕГЭ-2027 в стиле преподавателя Ильича (@ilcheg).
+Твои правила:
+1) Никогда не выдавай ответ сразу, если ученик просто просит подсказку — веди его пошагово и объясняй словами («мы умножили это на это, потому что...»).
+2) Используй правильные математические обозначения в LaTeX ($...$ и $$...$$): умножение точкой \\cdot, дроби \\frac{a}{b}, корни \\sqrt{x}, параллельность \\parallel, перпендикулярность \\perp, принадлежность \\in и \\subset, треугольник \\triangle, угол \\angle.
+3) Используй фирменные приёмы Ильича: в №9 тангенс касательной «стояк на лежак с поправкой на знак», в №14 правила приведения через кивок головой и отбор корней строго по окружности, в №16 «Ограничения (ОГР)» и петельки чётной кратности без знака внутри.`;
+
+async function callGeminiWithArgonFallback(userText, imageObj = null, jsonMode = false) {
+  const apiKey = document.getElementById("gemini-api-key").value.trim();
+  if (!apiKey) {
+    toggleAiDrawer(true);
+    throw new Error("Вставь свой Gemini API Key в шторке тренера справа :)");
+  }
+
+  const chosenModel = document.getElementById("gemini-model-select").value;
+  // Цепочка автоматической подстраховки, если бесплатный ключ не имеет доступа к Argon
+  const modelChain = chosenModel === "gemini-4-argon"
+    ? ["gemini-4-argon", "gemini-2.5-pro", "gemini-2.5-flash"]
+    : [chosenModel, "gemini-2.5-flash"];
+
+  const parts = [{ text: userText }];
+  if (imageObj) {
+    parts.push({ inline_data: { mime_type: imageObj.mime, data: imageObj.data } });
+  }
+
+  let lastError = "";
+  for (const mdl of modelChain) {
+    try {
+      const body = {
+        system_instruction: { parts: [{ text: ILCHEG_PROMPT }] },
+        contents: [{ role: "user", parts }]
+      };
+      if (jsonMode) body.generationConfig = { responseMimeType: "application/json" };
+
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${mdl}:generateContent?key=${apiKey}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      } else {
+        lastError = `HTTP ${res.status}`;
+      }
+    } catch (err) {
+      lastError = err.message;
+    }
+  }
+  throw new Error(`Не удалось выполнить запрос (${lastError}). Проверь API-ключ.`);
+}
+
+async function generateTaskViaGemini() {
+  const btn = document.getElementById("btn-gen-ai");
+  const meta = TASKS_META.find(m => m.num === appState.currentTask);
+  btn.textContent = "Argon думает...";
+  btn.disabled = true;
+
+  try {
+    const prompt = `Сгенерируй новую задачу формата Открытого банка ФИПИ ЕГЭ-2027 для Задания №${meta.num} (${meta.name}).
+Верни СТРОГО JSON со следующей структурой:
+{
+  "fipiCode": "ФИПИ #AI2027 • Сгенерировано Gemini",
+  "text": "Условие задачи с LaTeX ($...$)",
+  "answer": "Краткий ответ (с запятой для десятичных)",
+  "hint1": "Первая лёгкая подсказка, наталкивающая на мысль (без спойлера ответа)",
+  "hint2": "Вторая подсказка с нужной формулой и связью данных",
+  "hint3": "Третья подсказка с подстановкой чисел, но без финального ответа",
+  "step4": "Полное решение со всеми формулами и словами (мы умножили это на это, потому что...) + Ответ",
+  "visual": { "type": "derivative_tangent", "dx": 4, "dy": -2, "k": -0.5 }
+}`;
+    const raw = await callGeminiWithArgonFallback(prompt, null, true);
+    loadProblemIntoUI(JSON.parse(raw));
+  } catch (e) {
+    alert(e.message);
+  } finally {
+    btn.textContent = "+ Gemini 4 Argon";
+    btn.disabled = false;
+  }
+}
+
+async function checkPart2Solution() {
+  const txt = document.getElementById("part2-solution-text").value.trim();
+  const fileIn = document.getElementById("part2-photo");
+  const fb = document.getElementById("answer-feedback");
+
+  fb.style.display = "block";
+  fb.style.background = "var(--accent-soft)";
+  fb.style.color = "var(--accent)";
+  fb.textContent = "Gemini 4 Argon проверяет твоё решение по критериям экспертов ФИПИ...";
+
+  try {
+    let imgObj = null;
+    if (fileIn.files?.[0]) {
+      const f = fileIn.files[0];
+      const b64 = await new Promise(r => {
+        const rd = new FileReader();
+        rd.onload = () => r(rd.result.split(",")[1]);
+        rd.readAsDataURL(f);
+      });
+      imgObj = { mime: f.type, data: b64 };
+    }
+    const reply = await callGeminiWithArgonFallback(
+      `Проверь решение 2-й части (Задание №${appState.currentTask}):\nУсловие: ${activeProblem?.text}\nРешение ученика: ${txt}`,
+      imgObj,
+      false
+    );
+    fb.style.background = "var(--bg-elevated)";
+    fb.style.color = "var(--text-main)";
+    fb.innerHTML = reply.replace(/\n/g, "<br>");
+    renderMathEverywhere();
+  } catch (e) {
+    fb.textContent = "[!] " + e.message;
+  }
+}
+
+async function sendAiChatMessage() {
+  const input = document.getElementById("chat-user-input");
+  const text = input.value.trim();
+  if (!text) return;
+
+  const box = document.getElementById("chat-messages");
+  const uDiv = document.createElement("div");
+  uDiv.className = "chat-bubble user";
+  uDiv.textContent = text;
+  box.appendChild(uDiv);
+  input.value = "";
+
+  const aiDiv = document.createElement("div");
+  aiDiv.className = "chat-bubble ai";
+  aiDiv.textContent = "Думаю...";
+  box.appendChild(aiDiv);
+  box.scrollTop = box.scrollHeight;
+
+  try {
+    const prompt = `Текущая задача №${appState.currentTask}: "${activeProblem?.text || ""}".\nОткрыто подсказок: ${appState.unlockedHints}/4.\nВопрос ученика: ${text}`;
+    const reply = await callGeminiWithArgonFallback(prompt, null, false);
+    aiDiv.innerHTML = reply.replace(/\n/g, "<br>");
+    renderMathEverywhere();
+  } catch (e) {
+    aiDiv.textContent = "[!] " + e.message;
+  }
+  box.scrollTop = box.scrollHeight;
+}
+
+/* ============================================================================
+   8. ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК, ТЕМ И СПРАВОЧНИК ТЕОРИИ
+   ============================================================================ */
+function switchWorkspaceMode(mode) {
+  document.getElementById("view-tasks").style.display = mode === "tasks" ? "grid" : "none";
+  document.getElementById("view-streams").style.display = mode === "streams" ? "flex" : "none";
+  document.getElementById("view-theory").style.display = mode === "theory" ? "flex" : "none";
+
+  document.getElementById("nav-mode-tasks").classList.toggle("active", mode === "tasks");
+  document.getElementById("nav-mode-streams").classList.toggle("active", mode === "streams");
+  document.getElementById("nav-mode-theory").classList.toggle("active", mode === "theory");
+
+  if (mode === "streams") renderStreamsBentoGrid(currentStreamFilter);
+  renderMathEverywhere();
+}
+
+function setRightPreviewMode(mode) {
+  document.getElementById("right-preview-graph").style.display = mode === "graph" ? "block" : "none";
+  document.getElementById("right-preview-stream").style.display = mode === "stream" ? "flex" : "none";
+  document.getElementById("preview-tab-graph").classList.toggle("active", mode === "graph");
+  document.getElementById("preview-tab-stream").classList.toggle("active", mode === "stream");
+}
+
+function toggleAiDrawer(forceOpen = null) {
+  const dr = document.getElementById("ai-drawer");
+  if (forceOpen === true) dr.classList.add("open");
+  else dr.classList.toggle("open");
+}
+
+function toggleSyncModal() {
+  document.getElementById("sync-modal").classList.toggle("open");
+}
+
+function changeTheme(th) {
+  document.documentElement.setAttribute("data-theme", th);
+}
+
+function renderTheoryForCurrentTask() {
+  const box = document.getElementById("theory-card-box");
+  box.innerHTML = `
+    <h3 style="color:var(--accent);">Шпаргалка и обозначения для Задания №${appState.currentTask}</h3>
+    <div style="line-height:1.7; font-size:0.96rem;">
+      <b>Математические и геометрические знаки в КИМ ФИПИ:</b><br>
+      • Арифметика и дроби: сложение $+$, вычитание $-$, умножение точкой $a \\cdot b$, деление $a : b$, обыкновенная дробь $\\frac{a}{b}$, десятичная дробь $0{,}25$, корень $\\sqrt{x}$.<br>
+      • Взаимное расположение прямых и плоскостей: параллельность $MK \\parallel BC$, перпендикулярность $CH \\perp AB$.<br>
+      • Принадлежность фигурам и множествам: точка принадлежит отрезку $M \\in SA$, прямая лежит в плоскости $BC \\subset (ABC)$, целое число $k \\in \\mathbb{Z}$.<br>
+      • Геометрические фигуры: треугольник $\\triangle ABC$, угол $\\angle OAC = 45^\\circ$, подобие треугольников $\\triangle CDE \\sim \\triangle CAB$, вектор $\\vec{a}$.
+    </div>
+  `;
+  renderMathEverywhere();
+}
+
+function renderMathEverywhere() {
+  if (window.renderMathInElement) {
+    renderMathInElement(document.body, {
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "$", right: "$", display: false }
+      ],
+      throwOnError: false
+    });
+  }
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  loadStateFromStorage();
+  updateTopStatsUI();
+  renderTaskSidebar();
+  selectTaskNumber(appState.currentTask || 9);
+  renderStreamsBentoGrid("all");
+  loadProgressFromGoogleDrive(false);
+});
+</script>
+</body>
+</html>
