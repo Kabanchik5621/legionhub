@@ -985,8 +985,8 @@
   </div>
 
   <div class="chat-messages" id="chat-messages">
-    <div class="chat-bubble ai">Здорово, чат! Я работаю в режиме Gemini 4 Argon (с автоматической подстраховкой через Pro/Flash, если бесплатный ключ упрётся в лимит) :)
-Спрашивай любой шаг по текущей задаче или проси объяснить, почему мы умножили или разделили те или иные величины!</div>
+    <div class="chat-bubble ai">Привет. Готов помочь с разбором задач ФИПИ и теорией :)
+Пиши номер шага, который вызывает вопросы, или условие задачи — разберём спокойно и по делу.</div>
   </div>
 
   <div style="display:flex; gap:6px;">
@@ -2264,11 +2264,15 @@ function openLinkedStreamInFullPlayer() {
 /* ============================================================================
    7. ИНТЕГРАЦИЯ GEMINI 4 ARGON (С УМНОЙ ПОДСТРАХОВКОЙ PRO / FLASH)
    ============================================================================ */
-const ILCHEG_PROMPT = `Ты — встроенный ИИ-тренер по профильной математике ЕГЭ-2027 в стиле преподавателя Ильича (@ilcheg).
-Твои правила:
-1) Никогда не выдавай ответ сразу, если ученик просто просит подсказку — веди его пошагово и объясняй словами («мы умножили это на это, потому что...»).
-2) Используй правильные математические обозначения в LaTeX ($...$ и $$...$$): умножение точкой \\cdot, дроби \\frac{a}{b}, корни \\sqrt{x}, параллельность \\parallel, перпендикулярность \\perp, принадлежность \\in и \\subset, треугольник \\triangle, угол \\angle.
-3) Используй фирменные приёмы Ильича: в №9 тангенс касательной «стояк на лежак с поправкой на знак», в №14 правила приведения через кивок головой и отбор корней строго по окружности, в №16 «Ограничения (ОГР)» и петельки чётной кратности без знака внутри.`;
+const ILCHEG_PROMPT = `Ты — спокойный, точный и рассудительный ИИ-преподаватель по профильной математике ЕГЭ-2027.
+Твои правила стиля:
+1) Общайся ровно, уважительно и без лишней экспрессии. Не используй стримерский сленг («здорово, чат», «изи катка», «гроб», «ботать»), капс и восклицательные знаки в каждом предложении. Пиши чётко, коротко и без воды. Вместо графических эмодзи изредка используй только текстовые смайлики типа ":)".
+2) Не выдавай готовый ответ сразу, если ученик просит подсказку — веди его пошагово и спокойно объясняй логику каждого действия («мы умножили это на это, потому что...»).
+3) Используй понятные практические приёмы решения:
+   - в №9: геометрический смысл производной через отношение вертикального катета к горизонтальному с учётом знака наклона касательной;
+   - в №14: правила приведения через узловые точки окружности и отбор корней в пункте Б по тригонометрической окружности;
+   - в №16: запись «Ограничения (ОГР)» и метод интервалов с учётом корней чётной кратности.
+4) Все математические формулы оформляй в LaTeX ($...$ и $$...$$): умножение точкой \\cdot, дроби \\frac{a}{b}, корни \\sqrt{x}, параллельность \\parallel, перпендикулярность \\perp, принадлежность \\in и \\subset, треугольник \\triangle, угол \\angle.`;
 
 async function callGeminiWithArgonFallback(userText, imageObj = null, jsonMode = false) {
   const apiKey = document.getElementById("gemini-api-key").value.trim();
@@ -2277,11 +2281,35 @@ async function callGeminiWithArgonFallback(userText, imageObj = null, jsonMode =
     throw new Error("Вставь свой Gemini API Key в шторке тренера справа :)");
   }
 
+  // 1. Автоматически узнаём у сервера Google список всех моделей, доступных именно твоему ключу
+  let availableModels = [];
+  try {
+    const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+    if (listRes.ok) {
+      const listData = await listRes.json();
+      availableModels = (listData.models || [])
+        .filter(m => (m.supportedGenerationMethods || []).includes("generateContent"))
+        .map(m => m.name.replace("models/", ""));
+    }
+  } catch (e) {}
+
+  // 2. Выстраиваем очередь моделей без шанса получить 404
   const chosenModel = document.getElementById("gemini-model-select").value;
-  // Цепочка автоматической подстраховки, если бесплатный ключ не имеет доступа к Argon
-  const modelChain = chosenModel === "gemini-4-argon"
-    ? ["gemini-4-argon", "gemini-2.5-pro", "gemini-2.5-flash"]
-    : [chosenModel, "gemini-2.5-flash"];
+  const preferredOrder = [
+    chosenModel,
+    "gemini-2.5-pro",
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-2.0-flash-exp",
+    "gemini-1.5-pro-latest",
+    "gemini-1.5-flash-latest",
+    "gemini-1.5-flash"
+  ];
+
+  // Оставляем те модели, которые реально есть у твоего ключа (плюс все остальные из списка)
+  const modelChain = availableModels.length > 0
+    ? [...new Set([...preferredOrder.filter(m => availableModels.includes(m)), ...availableModels])]
+    : preferredOrder;
 
   const parts = [{ text: userText }];
   if (imageObj) {
@@ -2307,13 +2335,14 @@ async function callGeminiWithArgonFallback(userText, imageObj = null, jsonMode =
         const data = await res.json();
         return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
       } else {
-        lastError = `HTTP ${res.status}`;
+        const errJson = await res.json().catch(() => ({}));
+        lastError = `${mdl}: HTTP ${res.status} (${errJson.error?.message || ""})`;
       }
     } catch (err) {
       lastError = err.message;
     }
   }
-  throw new Error(`Не удалось выполнить запрос (${lastError}). Проверь API-ключ.`);
+  throw new Error(`Не удалось выполнить запрос (${lastError}).`);
 }
 
 async function generateTaskViaGemini() {
