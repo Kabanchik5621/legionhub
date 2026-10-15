@@ -985,8 +985,8 @@
   </div>
 
   <div class="chat-messages" id="chat-messages">
-    <div class="chat-bubble ai">Здорово, чат! Я работаю в режиме Gemini 4 Argon (с автоматической подстраховкой через Pro/Flash, если бесплатный ключ упрётся в лимит) :)
-Спрашивай любой шаг по текущей задаче или проси объяснить, почему мы умножили или разделили те или иные величины!</div>
+    <div class="chat-bubble ai">Привет. Готов помочь с разбором задач ФИПИ и теорией :)
+Пиши номер шага, который вызывает вопросы, или условие задачи — разберём спокойно и по делу.</div>
   </div>
 
   <div style="display:flex; gap:6px;">
@@ -2264,11 +2264,14 @@ function openLinkedStreamInFullPlayer() {
 /* ============================================================================
    7. ИНТЕГРАЦИЯ GEMINI 4 ARGON (С УМНОЙ ПОДСТРАХОВКОЙ PRO / FLASH)
    ============================================================================ */
-const ILCHEG_PROMPT = `Ты — встроенный ИИ-тренер по профильной математике ЕГЭ-2027 в стиле преподавателя Ильича (@ilcheg).
+const ILCHEG_PROMPT = `Ты — спокойный, точный и рассудительный ИИ-преподаватель по профильной математике ЕГЭ-2027.
 Твои правила:
-1) Никогда не выдавай ответ сразу, если ученик просто просит подсказку — веди его пошагово и объясняй словами («мы умножили это на это, потому что...»).
-2) Используй правильные математические обозначения в LaTeX ($...$ и $$...$$): умножение точкой \\cdot, дроби \\frac{a}{b}, корни \\sqrt{x}, параллельность \\parallel, перпендикулярность \\perp, принадлежность \\in и \\subset, треугольник \\triangle, угол \\angle.
-3) Используй фирменные приёмы Ильича: в №9 тангенс касательной «стояк на лежак с поправкой на знак», в №14 правила приведения через кивок головой и отбор корней строго по окружности, в №16 «Ограничения (ОГР)» и петельки чётной кратности без знака внутри.`;
+1) Общайся ровно, уважительно и без лишней экспрессии. Не используй стримерский сленг и капс. Пиши чётко, коротко и по делу. Изредка используй текстовые смайлики типа ":)".
+2) Не выдавай ответ сразу, если ученик просит подсказку — веди его пошагово и объясняй словами («мы умножили это на это, потому что...»).
+3) Используй правильные математические обозначения в LaTeX ($...$ и $$...$$): умножение точкой \\cdot, дроби \\frac{a}{b}, корни \\sqrt{x}, параллельность \\parallel, перпендикулярность \\perp, принадлежность \\in и \\subset, треугольник \\triangle, угол \\angle.
+4) Приёмы решения: в №9 тангенс касательной через отношение вертикального катета к горизонтальному с учётом знака; в №14 отбор корней по окружности; в №16 «Ограничения (ОГР)» и петельки чётной кратности без знака внутри.`;
+
+let cachedWorkingModel = null;
 
 async function callGeminiWithArgonFallback(userText, imageObj = null, jsonMode = false) {
   const apiKey = document.getElementById("gemini-api-key").value.trim();
@@ -2278,10 +2281,19 @@ async function callGeminiWithArgonFallback(userText, imageObj = null, jsonMode =
   }
 
   const chosenModel = document.getElementById("gemini-model-select").value;
-  // Цепочка автоматической подстраховки, если бесплатный ключ не имеет доступа к Argon
-  const modelChain = chosenModel === "gemini-4-argon"
-    ? ["gemini-4-argon", "gemini-2.5-pro", "gemini-2.5-flash"]
-    : [chosenModel, "gemini-2.5-flash"];
+
+  // Быстрая цепочка моделей: начинаем с проверенной или самых быстрых доступных моделей
+  const fastChain = [
+    cachedWorkingModel,
+    chosenModel === "gemini-4-argon" ? "gemini-2.5-flash" : chosenModel,
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-1.5-flash-latest",
+    "gemini-1.5-flash",
+    "gemini-2.5-pro"
+  ].filter(Boolean);
+
+  const modelChain = [...new Set(fastChain)];
 
   const parts = [{ text: userText }];
   if (imageObj) {
@@ -2290,57 +2302,80 @@ async function callGeminiWithArgonFallback(userText, imageObj = null, jsonMode =
 
   let lastError = "";
   for (const mdl of modelChain) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 18000); // Защита от вечного зависания (18 сек)
+
     try {
       const body = {
         system_instruction: { parts: [{ text: ILCHEG_PROMPT }] },
         contents: [{ role: "user", parts }]
       };
-      if (jsonMode) body.generationConfig = { responseMimeType: "application/json" };
+      if (jsonMode) {
+        body.generationConfig = { responseMimeType: "application/json" };
+      }
 
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${mdl}:generateContent?key=${apiKey}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
-      });
+      const res = await fetch(
+        `[https://generativelanguage.googleapis.com/v1beta/models/$](https://generativelanguage.googleapis.com/v1beta/models/$){mdl}:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+          signal: controller.signal
+        }
+      );
+      clearTimeout(timer);
 
       if (res.ok) {
         const data = await res.json();
-        return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        const textOut = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        if (textOut) {
+          cachedWorkingModel = mdl; // Запоминаем рабочую модель, чтобы следующие ответы прилетали мгновенно!
+          return textOut;
+        }
       } else {
-        lastError = `HTTP ${res.status}`;
+        const errData = await res.json().catch(() => ({}));
+        lastError = `${mdl}: HTTP ${res.status} (${errData.error?.message || "ошибка доступа"})`;
+        if (cachedWorkingModel === mdl) cachedWorkingModel = null;
       }
     } catch (err) {
-      lastError = err.message;
+      clearTimeout(timer);
+      lastError = err.name === "AbortError" ? "Превышено время ожидания сервера" : err.message;
     }
   }
-  throw new Error(`Не удалось выполнить запрос (${lastError}). Проверь API-ключ.`);
+  throw new Error(`Не удалось получить ответ (${lastError}). Проверь интернет или VPN.`);
+}
+
+function cleanJsonString(str) {
+  // Убираем обёртку ```json ... ``` если нейросеть её добавила
+  return str.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
 }
 
 async function generateTaskViaGemini() {
   const btn = document.getElementById("btn-gen-ai");
   const meta = TASKS_META.find(m => m.num === appState.currentTask);
-  btn.textContent = "Argon думает...";
+  btn.textContent = "Генерирую...";
   btn.disabled = true;
 
   try {
     const prompt = `Сгенерируй новую задачу формата Открытого банка ФИПИ ЕГЭ-2027 для Задания №${meta.num} (${meta.name}).
-Верни СТРОГО JSON со следующей структурой:
+Верни СТРОГО валидный JSON без лишнего текста:
 {
-  "fipiCode": "ФИПИ #AI2027 • Сгенерировано Gemini",
+  "fipiCode": "ФИПИ #AI2027 • Сгенерировано ИИ",
   "text": "Условие задачи с LaTeX ($...$)",
-  "answer": "Краткий ответ (с запятой для десятичных)",
+  "answer": "Краткий числовой ответ (с запятой для десятичных)",
   "hint1": "Первая лёгкая подсказка, наталкивающая на мысль (без спойлера ответа)",
   "hint2": "Вторая подсказка с нужной формулой и связью данных",
   "hint3": "Третья подсказка с подстановкой чисел, но без финального ответа",
-  "step4": "Полное решение со всеми формулами и словами (мы умножили это на это, потому что...) + Ответ",
+  "step4": "Полное решение со всеми формулами и пояснением словами (мы умножили это на это, потому что...) + Ответ",
   "visual": { "type": "derivative_tangent", "dx": 4, "dy": -2, "k": -0.5 }
 }`;
     const raw = await callGeminiWithArgonFallback(prompt, null, true);
-    loadProblemIntoUI(JSON.parse(raw));
+    const parsed = JSON.parse(cleanJsonString(raw));
+    loadProblemIntoUI(parsed);
   } catch (e) {
-    alert(e.message);
+    alert("Ошибка генерации: " + e.message);
   } finally {
-    btn.textContent = "+ Gemini 4 Argon";
+    btn.textContent = "+ Сгенерировать (ИИ)";
     btn.disabled = false;
   }
 }
@@ -2353,7 +2388,7 @@ async function checkPart2Solution() {
   fb.style.display = "block";
   fb.style.background = "var(--accent-soft)";
   fb.style.color = "var(--accent)";
-  fb.textContent = "Gemini 4 Argon проверяет твоё решение по критериям экспертов ФИПИ...";
+  fb.textContent = "Проверяю решение по критериям экспертов ФИПИ...";
 
   try {
     let imgObj = null;
@@ -2374,7 +2409,9 @@ async function checkPart2Solution() {
     fb.style.background = "var(--bg-elevated)";
     fb.style.color = "var(--text-main)";
     fb.innerHTML = reply.replace(/\n/g, "<br>");
-    renderMathEverywhere();
+    if (window.renderMathInElement) {
+      renderMathInElement(fb, { delimiters: [{left: "$$", right: "$$", display: true}, {left: "$", right: "$", display: false}], throwOnError: false });
+    }
   } catch (e) {
     fb.textContent = "[!] " + e.message;
   }
@@ -2394,7 +2431,7 @@ async function sendAiChatMessage() {
 
   const aiDiv = document.createElement("div");
   aiDiv.className = "chat-bubble ai";
-  aiDiv.textContent = "Думаю...";
+  aiDiv.textContent = "Печатает...";
   box.appendChild(aiDiv);
   box.scrollTop = box.scrollHeight;
 
@@ -2402,7 +2439,9 @@ async function sendAiChatMessage() {
     const prompt = `Текущая задача №${appState.currentTask}: "${activeProblem?.text || ""}".\nОткрыто подсказок: ${appState.unlockedHints}/4.\nВопрос ученика: ${text}`;
     const reply = await callGeminiWithArgonFallback(prompt, null, false);
     aiDiv.innerHTML = reply.replace(/\n/g, "<br>");
-    renderMathEverywhere();
+    if (window.renderMathInElement) {
+      renderMathInElement(aiDiv, { delimiters: [{left: "$$", right: "$$", display: true}, {left: "$", right: "$", display: false}], throwOnError: false });
+    }
   } catch (e) {
     aiDiv.textContent = "[!] " + e.message;
   }
